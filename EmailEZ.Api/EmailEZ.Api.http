@@ -1,0 +1,6 @@
+@EmailEZ.Api_HostAddress = http://localhost:5150
+
+GET {{EmailEZ.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
