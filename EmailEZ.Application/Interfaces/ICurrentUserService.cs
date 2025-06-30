@@ -10,4 +10,6 @@ public interface ICurrentUserService
     /// This could be a TenantId, AdminUserId, or a system account ID.
     /// </summary>
     Guid? GetCurrentUserId();
+
+    
 }

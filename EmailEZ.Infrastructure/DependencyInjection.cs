@@ -6,9 +6,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Hangfire;
 using Hangfire.PostgreSql;
-using EmailEZ.Infrastructure.Services.EmailSender; // For IEmailSenderService, MailKitEmailSenderService
 using EmailEZ.Infrastructure.Services.Security.PasswordHasher; // For IPasswordHasher, PasswordHasher
-using EmailEZ.Infrastructure.Services.Security; // For ISmtpPasswordEncryptor, SmtpPasswordEncryptor
+using EmailEZ.Infrastructure.Services;
 
 namespace EmailEZ.Infrastructure;
 
@@ -40,7 +39,7 @@ public static class DependencyInjection
 
 
         // Register Email Sender Service
-        services.AddTransient<IEmailSenderService, MailKitEmailSenderService>(); // Transient for new instance per send
+        services.AddTransient<IEmailSender, SmtpEmailSender>(); // Transient for new instance per send
 
         // Register Hangfire
         services.AddHangfire(config =>
@@ -64,15 +63,14 @@ public static class DependencyInjection
 
         // Read encryption settings from configuration
         var encryptionKey = configuration["EncryptionSettings:Key"];
-        var encryptionIV = configuration["EncryptionSettings:IV"];
 
         // Ensure encryptionKey and encryptionIV are not null or empty
-        if (string.IsNullOrWhiteSpace(encryptionKey) || string.IsNullOrWhiteSpace(encryptionIV))
+        if (string.IsNullOrWhiteSpace(encryptionKey))
         {
-            throw new InvalidOperationException("EncryptionSettings:Key and EncryptionSettings:IV must be configured in the application settings.");
+            throw new InvalidOperationException("EncryptionSettings:Ke must be configured in the application settings.");
         }
 
-        services.AddSingleton<IEncryptionService>(new AesEncryptionService(encryptionKey, encryptionIV));
+        services.AddSingleton<IEncryptionService>(new AesEncryptionService(encryptionKey));
         return services;
     }
 }

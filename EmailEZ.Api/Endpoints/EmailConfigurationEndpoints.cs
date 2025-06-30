@@ -4,6 +4,7 @@ using EmailEZ.Application.Features.EmailConfigurations.Commands.DeleteEmailConfi
 using EmailEZ.Application.Features.EmailConfigurations.Commands.UpdateEmailConfiguration;
 using EmailEZ.Application.Features.EmailConfigurations.Queries.GetAllEmailConfigurations;
 using EmailEZ.Application.Features.EmailConfigurations.Queries.GetEmailConfigurationById;
+using EmailEZ.Application.Features.Emails.Commands.SendEmail;
 using FluentValidation; // For ValidationException
 using MediatR;
 using Microsoft.AspNetCore.Mvc; // For [FromBody]
@@ -218,5 +219,6 @@ public class EmailConfigurationEndpoints : CarterModule
         .Produces<DeleteEmailConfigurationResponse>(StatusCodes.Status400BadRequest)
         .Produces(StatusCodes.Status404NotFound)
         .ProducesProblem(StatusCodes.Status500InternalServerError);
+
     }
 }

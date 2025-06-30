@@ -106,7 +106,14 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         modelBuilder.Entity<Email>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<EmailAttachment>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<EmailEvent>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<AuditLog>().HasQueryFilter(e => !e.IsDeleted); // Audit logs might not typically be soft-deleted, but good for consistency
+        modelBuilder.Entity<AuditLog>().HasQueryFilter(e => !e.IsDeleted);
+
+        // add query filter for tenant id
+        //modelBuilder.Entity<Email>().HasQueryFilter(e => e.TenantId == _currentUserService.GetCurrentTenantId());
+        //modelBuilder.Entity<EmailAttachment>().HasQueryFilter(e => e.TenantId == _currentUserService.GetCurrentTenantId());
+        //modelBuilder.Entity<EmailEvent>().HasQueryFilter(e => e.TenantId == _currentUserService.GetCurrentTenantId());
+        //modelBuilder.Entity<AuditLog>().HasQueryFilter(e => e.TenantId == _currentUserService.GetCurrentTenantId());
+
 
         // Call the entity-specific configurations here
         // We can move these into separate configuration classes later for better organization,
@@ -150,7 +157,9 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         // CcAddresses and BccAddresses are nullable in model, will be TEXT[] null in DB
         entity.Property(e => e.Subject).IsRequired().HasColumnType("text");
         entity.Property(e => e.BodyHtml).HasColumnType("text");
+        entity.Property(e => e.BodyHtml).HasMaxLength(2000); // Adjust length as needed
         entity.Property(e => e.BodyPlainText).HasColumnType("text");
+        entity.Property(e => e.BodyPlainText).HasMaxLength(2000); // Adjust length as needed
 
         entity.Property(e => e.Status)
               .HasConversion<string>() // Store enum as string
@@ -165,6 +174,28 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         entity.HasIndex(e => e.TenantId); // For efficient tenant-specific email queries
         entity.HasIndex(e => e.Status); // For efficient status-based queries
         entity.HasIndex(e => e.QueuedAt); // For processing queue
+
+        entity.Property(e => e.ToAddresses)
+            .HasConversion(
+                v => string.Join(";", v),
+                v => v.Split(";", StringSplitOptions.RemoveEmptyEntries).ToList()
+            );
+        entity.Property(e => e.CcAddresses)
+            .HasConversion(
+                v => v != null ? string.Join(";", v) : null,
+                v => v != null ? v.Split(";", StringSplitOptions.RemoveEmptyEntries).ToList() : null
+            );
+
+        entity.Property(e => e.BccAddresses)
+            .HasConversion(
+                v => v != null ? string.Join(";", v) : null,
+                v => v != null ? v.Split(";", StringSplitOptions.RemoveEmptyEntries).ToList() : null
+            );
+
+        entity.HasOne(e => e.EmailConfiguration)
+            .WithMany() // Or .WithMany(ec => ec.EmailsSent) if you add a collection to EmailConfiguration
+            .HasForeignKey(e => e.EmailConfigurationId)
+            .OnDelete(DeleteBehavior.Restrict); // Or .NoAction, Prevent, etc., depending on desired behavior if EmailConfig is deleted
     }
 
     private void ConfigureEmailAttachment(EntityTypeBuilder<EmailAttachment> entity)

@@ -25,7 +25,6 @@ public class EmailConfiguration : BaseEntity // Inherit from your base entity cl
 
     // Sender Display Name (e.g., "EmailEZ Support")
     public string DisplayName { get; set; } = string.Empty;
-
-    // Optional: Is this the default configuration for the tenant?
-    // public bool IsDefault { get; set; }
+    public string FromEmail { get; set; } = string.Empty;
+    public bool IsDefault { get; set; }
 }
