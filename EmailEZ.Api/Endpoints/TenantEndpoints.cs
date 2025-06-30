@@ -7,6 +7,7 @@ using EmailEZ.Application.Features.Tenants.Queries.GetAllTenants;
 using EmailEZ.Application.Features.Tenants.Queries.GetTenantById;
 using FluentValidation; // For ValidationException
 using MediatR; // For IMediator
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc; // For [FromBody]
 
 namespace EmailEZ.Api.Endpoints;
@@ -27,7 +28,8 @@ public class TenantEndpoints : CarterModule
     {
         var group = app.MapGroup(TenantsBaseRoute) 
                        .WithTags("Tenants")
-                       .WithOpenApi();
+                       .WithOpenApi()
+                       .RequireAuthorization(JwtBearerDefaults.AuthenticationScheme); // Ensure all endpoints in this group require authorization
 
         // POST /api/v1/tenants (because group is /api/v1/tenants and we map to "/")
         group.MapPost("/",

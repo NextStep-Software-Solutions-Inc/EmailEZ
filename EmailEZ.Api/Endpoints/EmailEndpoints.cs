@@ -11,6 +11,8 @@ using EmailEZ.Domain.Enums;
 using System.ComponentModel.DataAnnotations;
 using EmailEZ.Application.Common;
 using Hangfire;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using EmailEZ.Infrastructure.Authentication;
 
 namespace EmailEZ.Api.Endpoints; 
 
@@ -26,7 +28,8 @@ public class EmailEndpoints : CarterModule
         // This makes it easier to apply common configurations like tags or authorization if needed
         var group = app.MapGroup(EmailConfigsBaseRoute)
                             .WithTags("Emails")
-                            .WithOpenApi();
+                            .WithOpenApi()
+                            .RequireAuthorization();
 
         // POST /api/v1/tenants/{tenantId}/send-email
         group.MapPost("/send-email",

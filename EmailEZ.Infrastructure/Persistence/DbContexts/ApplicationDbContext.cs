@@ -109,10 +109,10 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         modelBuilder.Entity<AuditLog>().HasQueryFilter(e => !e.IsDeleted);
 
         // add query filter for tenant id
-        //modelBuilder.Entity<Email>().HasQueryFilter(e => e.TenantId == _currentUserService.GetCurrentTenantId());
-        //modelBuilder.Entity<EmailAttachment>().HasQueryFilter(e => e.TenantId == _currentUserService.GetCurrentTenantId());
-        //modelBuilder.Entity<EmailEvent>().HasQueryFilter(e => e.TenantId == _currentUserService.GetCurrentTenantId());
-        //modelBuilder.Entity<AuditLog>().HasQueryFilter(e => e.TenantId == _currentUserService.GetCurrentTenantId());
+        modelBuilder.Entity<Email>().HasQueryFilter(e => e.TenantId == _currentUserService.GetCurrentUserId());
+        modelBuilder.Entity<EmailAttachment>().HasQueryFilter(e => e.TenantId == _currentUserService.GetCurrentUserId());
+        modelBuilder.Entity<EmailEvent>().HasQueryFilter(e => e.TenantId == _currentUserService.GetCurrentUserId());
+        modelBuilder.Entity<AuditLog>().HasQueryFilter(e => e.TenantId == _currentUserService.GetCurrentUserId());
 
 
         // Call the entity-specific configurations here

@@ -70,6 +70,8 @@ public static class DependencyInjection
         }
 
         services.AddSingleton<IEncryptionService>(new AesEncryptionService(encryptionKey));
+
+
         return services;
     }
 }

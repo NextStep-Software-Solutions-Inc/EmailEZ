@@ -28,7 +28,8 @@ public class EmailConfigurationEndpoints : CarterModule
     {
         var group = app.MapGroup(EmailConfigsBaseRoute)
                         .WithTags("Email Configurations") // Tag for Swagger UI grouping
-                        .WithOpenApi();
+                        .WithOpenApi()
+                        .RequireAuthorization();
 
         // POST /api/v1/tenants/{tenantId}/email-configurations
         group.MapPost("/",

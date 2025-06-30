@@ -1,17 +1,48 @@
+using System.Text;
 using Carter;
 using EmailEZ.Api.Filters;
-using EmailEZ.Api.Middleware;
 using EmailEZ.Application;
 using EmailEZ.Infrastructure;
+using EmailEZ.Infrastructure.Authentication;
 using EmailEZ.Infrastructure.Persistence.DbContexts;
 using Hangfire;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddAuthentication(options =>
+{
+    // Set a default scheme if you expect most endpoints to use one more often.
+    // If omitted, you MUST explicitly specify schemes on ALL protected endpoints.
+    // If present, endpoints without explicit schemes will try this default.
+    options.DefaultAuthenticateScheme = ApiKeyAuthenticationOptions.DefaultScheme;
+    options.DefaultChallengeScheme = ApiKeyAuthenticationOptions.DefaultScheme;
+})
+.AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(
+    ApiKeyAuthenticationOptions.DefaultScheme, // Scheme Name: "ApiKey" (from ApiKeyAuthenticationOptions.DefaultScheme)
+    null // Display name
+)
+.AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options => // Scheme Name: "Bearer" (from JwtBearerDefaults.AuthenticationScheme)
+{
+    var configuration = builder.Configuration;
+    // JWT Bearer Token validation parameters
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = configuration["JwtSettings:Issuer"],
+        ValidAudience = configuration["JwtSettings:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtSettings:Key"] ?? throw new InvalidOperationException("JWT Key not configured.")))
+    };
+});
 
+builder.Services.AddAuthorization();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -61,8 +92,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseMiddleware<ApiKeyAuthenticationMiddleware>();
-
+//app.UseMiddleware<ApiKeyAuthenticationMiddleware>();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseHangfireDashboard("/hangfire", new DashboardOptions
 {
