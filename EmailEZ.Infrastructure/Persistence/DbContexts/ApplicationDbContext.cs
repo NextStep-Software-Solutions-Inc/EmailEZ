@@ -1,5 +1,4 @@
-﻿using System.Reflection.Emit;
-using EmailEZ.Application.Interfaces; // For ICurrentUserService and IApplicationDbContext
+﻿using EmailEZ.Application.Interfaces; // For ICurrentUserService and IApplicationDbContext
 using EmailEZ.Domain.Common; // For BaseEntity
 using EmailEZ.Domain.Entities; // For our entities
 using Microsoft.EntityFrameworkCore;
@@ -20,7 +19,6 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
 
     // DbSets - must match IApplicationDbContext interface
     public DbSet<Tenant> Tenants { get; set; } = null!;
-
     public DbSet<EmailConfiguration> EmailConfigurations { get; set; }
     public DbSet<Email> Emails { get; set; } = null!;
     public DbSet<EmailAttachment> EmailAttachments { get; set; } = null!;
