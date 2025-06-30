@@ -12,8 +12,6 @@ public class CreateTenantCommandHandler : IRequestHandler<CreateTenantCommand, C
 {
     private readonly IApplicationDbContext _context;
     private readonly IApiKeyHasher _apiKeyHasher;
-    private readonly IEncryptionService _smtpPasswordEncryptor;
-    private readonly ICurrentUserService _currentUserService; // To track who created it
 
     public CreateTenantCommandHandler(
         IApplicationDbContext context,
@@ -23,8 +21,6 @@ public class CreateTenantCommandHandler : IRequestHandler<CreateTenantCommand, C
     {
         _context = context;
         _apiKeyHasher = apiKeyHasher;
-        _smtpPasswordEncryptor = smtpPasswordEncryptor;
-        _currentUserService = currentUserService;
     }
 
     public async Task<CreateTenantResponse> Handle(CreateTenantCommand request, CancellationToken cancellationToken)
@@ -57,6 +53,7 @@ public class CreateTenantCommandHandler : IRequestHandler<CreateTenantCommand, C
             Name = request.Name,
             ApiKeyHash = hashedApiKey,
             Domain = request.Domain,
+            IsActive = true,
         };
 
         // 6. Add to DbContext and save

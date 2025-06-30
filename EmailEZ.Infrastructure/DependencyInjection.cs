@@ -6,7 +6,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Hangfire;
 using Hangfire.PostgreSql;
-using EmailEZ.Infrastructure.Services.Security.PasswordHasher; // For IPasswordHasher, PasswordHasher
 using EmailEZ.Infrastructure.Services;
 
 namespace EmailEZ.Infrastructure;
