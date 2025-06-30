@@ -36,6 +36,8 @@ public class SendEmailCommandHandler : IRequestHandler<SendEmailCommand, SendEma
         var emailMessage = new EmailMessage
         {
             To = request.ToEmail,
+            Bcc = request.BccEmail,
+            Cc = request.CcEmail,
             Subject = request.Subject,
             Body = request.Body,
             IsHtml = request.IsHtml,
@@ -47,20 +49,17 @@ public class SendEmailCommandHandler : IRequestHandler<SendEmailCommand, SendEma
         {
             TenantId = request.TenantId,
             EmailConfigurationId = request.EmailConfigurationId,
-            FromAddress = emailConfig.FromEmail, // Use the configured from address
+            FromAddress = emailConfig.FromEmail,
 
-            // Assuming a single ToAddress for now based on EmailMessage.To
-            ToAddresses = new List<string> { request.ToEmail },
-            // CcAddresses and BccAddresses would need to be passed in SendEmailCommand if you want to store them
-            // CcAddresses = request.CcAddresses,
-            // BccAddresses = request.BccAddresses,
+            ToAddresses = request.ToEmail,
+            CcAddresses = request.CcEmail,
+            BccAddresses = request.BccEmail,
 
             Subject = request.Subject,
-            // Truncate body for storage to prevent DB bloat
 
             IsHtml = request.IsHtml,
-            BodyHtml = request.IsHtml ? (request.Body.Length > 2000 ? request.Body.Substring(0, 2000) + "..." : request.Body) : null,
-            BodyPlainText = !request.IsHtml ? (request.Body.Length > 2000 ? request.Body.Substring(0, 2000) + "..." : request.Body) : null,
+            BodyHtml = request.IsHtml ? (request.Body.Length > 2000 ? string.Concat(request.Body.AsSpan(0, 2000), "...") : request.Body) : null,
+            BodyPlainText = !request.IsHtml ? (request.Body.Length > 2000 ? string.Concat(request.Body.AsSpan(0, 2000), "...") : request.Body) : null,
             // You can adjust the truncation length (e.g., 2000 characters)
 
             Status = EmailStatus.Queued, // Set initial status to Queued
@@ -83,6 +82,7 @@ public class SendEmailCommandHandler : IRequestHandler<SendEmailCommand, SendEma
 
     // This method will be executed by Hangfire
     // It's public to allow Hangfire to call it.
+    [AutomaticRetry(Attempts = 3, DelaysInSeconds = new int[] { 30, 120, 300 }, OnAttemptsExceeded = AttemptsExceededAction.Delete)]
     public async Task SendEmailAndLogAsync(
         EmailMessage message,
         EmailConfiguration config,

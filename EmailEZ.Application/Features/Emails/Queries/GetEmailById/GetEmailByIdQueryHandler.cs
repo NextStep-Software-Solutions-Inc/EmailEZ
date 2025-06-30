@@ -1,8 +1,10 @@
-﻿using EmailEZ.Application.Interfaces;
+﻿using EmailEZ.Application.Features.Emails.Queries.GetEmailById;
+using EmailEZ.Application.Interfaces;
+using EmailEZ.Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace EmailEZ.Application.Features.Emails.Queries.GetEmailById;
+namespace EmailEZ.Application.Features.Emails.Dtos;
 
 public class GetEmailByIdQueryHandler : IRequestHandler<GetEmailByIdQuery, EmailDetailsDto?>
 {
@@ -37,7 +39,7 @@ public class GetEmailByIdQueryHandler : IRequestHandler<GetEmailByIdQuery, Email
             Subject = email.Subject,
             BodyHtml = email.BodyHtml,
             BodyPlainText = email.BodyPlainText,
-            Status = email.Status,
+            Status = email.Status.ToString(),
             ErrorMessage = email.ErrorMessage,
             SmtpResponse = email.SmtpResponse,
             HangfireJobId = email.HangfireJobId,

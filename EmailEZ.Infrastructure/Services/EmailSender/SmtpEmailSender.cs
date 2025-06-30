@@ -1,10 +1,9 @@
 ﻿using EmailEZ.Application.Interfaces;
 using EmailEZ.Domain.Entities; // For EmailConfiguration
-// MailKit and MimeKit usings
 using MailKit.Net.Smtp;
 using MailKit.Security; // For SecureSocketOptions
 using Microsoft.Extensions.Logging; // For logging
-using MimeKit; // For MimeMessage, MailboxAddress, TextPart
+using MimeKit; 
 using MimeKit.Text;
 
 
@@ -39,8 +38,10 @@ public class SmtpEmailSender : IEmailSender
         }
 
         var email = new MimeMessage();
-        email.From.Add(new MailboxAddress(message.FromDisplayName ?? config.DisplayName, config.Username));
-        email.To.Add(MailboxAddress.Parse(message.To));
+        email.From.Add(new MailboxAddress(message.FromDisplayName ?? config.DisplayName, config.FromEmail));
+        email.To.AddRange(message.To.Select(MailboxAddress.Parse));
+        email.Cc.AddRange(message.Cc?.Select(MailboxAddress.Parse) ?? Enumerable.Empty<MailboxAddress>());
+        email.Bcc.AddRange(message.Bcc?.Select(MailboxAddress.Parse) ?? Enumerable.Empty<MailboxAddress>());
         email.Subject = message.Subject;
         email.Body = message.IsHtml ? new TextPart(TextFormat.Html) { Text = message.Body } : new TextPart(TextFormat.Plain) { Text = message.Body };
 

@@ -15,7 +15,9 @@ public interface IEmailSender
 /// </summary>
 public class EmailMessage
 {
-    public required string To { get; set; }
+    public required List<string> To { get; set; }
+    public List<string>? Cc { get; set; } // Optional: Carbon Copy recipients
+    public List<string>? Bcc { get; set; } // Optional: Blind Carbon Copy recipients
     public required string Subject { get; set; }
     public required string Body { get; set; }
     public bool IsHtml { get; set; } = true; // Default to HTML body

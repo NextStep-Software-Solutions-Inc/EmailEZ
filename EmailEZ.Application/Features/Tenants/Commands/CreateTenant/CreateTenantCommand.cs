@@ -1,6 +1,4 @@
 ﻿using MediatR; // For IRequest<TResponse>
-using System;
-using System.Collections.Generic;
 
 namespace EmailEZ.Application.Features.Tenants.Commands.CreateTenant;
 

@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using EmailEZ.Application.Features.Emails.Dtos;
+using MediatR;
 
 namespace EmailEZ.Application.Features.Emails.Queries.GetEmailById;
 

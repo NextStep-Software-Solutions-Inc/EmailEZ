@@ -8,9 +8,12 @@ public record CreateEmailConfigurationCommand(
     int SmtpPort,
     bool UseSsl,
     string Username,
+    string FromEmail,
     string Password, // Remember: this will need encryption before saving!
     string DisplayName
-) : IRequest<CreateEmailConfigurationResponse>;
+) : IRequest<CreateEmailConfigurationResponse>
+{
+}
 
 public record CreateEmailConfigurationResponse(
     Guid EmailConfigurationId,

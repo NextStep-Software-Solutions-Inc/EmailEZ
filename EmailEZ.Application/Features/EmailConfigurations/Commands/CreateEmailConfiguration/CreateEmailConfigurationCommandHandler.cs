@@ -54,6 +54,7 @@ public class CreateEmailConfigurationCommandHandler : IRequestHandler<CreateEmai
             SmtpPort = request.SmtpPort,
             UseSsl = request.UseSsl,
             Username = request.Username,
+            FromEmail = request.FromEmail,
             Password = encryptedSmtpPassword, 
             DisplayName = request.DisplayName
         };

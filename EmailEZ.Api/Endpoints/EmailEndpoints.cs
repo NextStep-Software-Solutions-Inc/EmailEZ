@@ -1,24 +1,24 @@
-﻿// EmailEZ.Api/Endpoints/EmailEndpoints.cs
-
-using Carter;
+﻿using Carter;
 using EmailEZ.Application.Common.Models;
 using EmailEZ.Application.Features.Emails.Commands.SendEmail;
 using EmailEZ.Application.Features.Emails.Queries.GetEmailById;
-using EmailEZ.Application.Features.Emails.Queries.GetEmails;
+using EmailEZ.Application.Features.Emails.Dtos;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using EmailEZ.Application.Features.Emails.Queries.GetAllEmails;
+using EmailEZ.Domain.Enums;
+using System.ComponentModel.DataAnnotations;
+using EmailEZ.Application.Common;
+using Hangfire;
 
 namespace EmailEZ.Api.Endpoints; 
 
-public class EmailEndpoints : CarterModule 
+public class EmailEndpoints : CarterModule
 {
     private const string EmailConfigsBaseRoute = "/api/v1/tenants/{tenantId:guid}/emails";
 
-    public EmailEndpoints() : base()
-    {
-
-    }
+    public EmailEndpoints() : base() { }
 
     public override void AddRoutes(IEndpointRouteBuilder app)
     {
@@ -65,7 +65,7 @@ public class EmailEndpoints : CarterModule
                     return Results.BadRequest(response);
                 }
             }
-            catch (ValidationException ex) // If you add FluentValidation later
+            catch (FluentValidation.ValidationException ex) // If you add FluentValidation later
             {
                 var errors = ex.Errors.ToDictionary(e => e.PropertyName, e => new[] { e.ErrorMessage });
                 return Results.ValidationProblem(errors);
@@ -81,36 +81,61 @@ public class EmailEndpoints : CarterModule
         .Produces<SendEmailResponse>(StatusCodes.Status400BadRequest)
         .ProducesValidationProblem()
         .ProducesProblem(StatusCodes.Status500InternalServerError);
+
         // Map the GET /api/v1/tenants/{tenantId}/emails endpoint
         group.MapGet("/", async (
             Guid tenantId,
-            IMediator mediator) =>
+            IMediator mediator,
+            [Required][FromQuery] int pageNumber = 1, // Default to first page
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string sortOder = SortOder.Descending,
+            [FromQuery] string? emailStatus = null,
+            [FromQuery] string? toEmailContains = null,
+            [FromQuery] string? subjectContains = null,
+            [FromQuery] DateTimeOffset? startDate = null,
+            [FromQuery] DateTimeOffset? endDate = null
+        ) =>
         {
-
+            EmailStatus? status = null;
+            if (!string.IsNullOrEmpty(emailStatus))
+            {
+                if (Enum.TryParse<EmailStatus>(emailStatus, ignoreCase: true, out var parsedStatus))
+                {
+                    status = parsedStatus;
+                }
+                else
+                {
+                    var validStatuses = string.Join(", ", Enum.GetNames(typeof(EmailStatus)));
+                    return Results.BadRequest($"Invalid status value: {emailStatus}, ust be one of: {validStatuses}");
+                }
+            }
             var query = new GetAllEmailsQuery
             {
                 TenantId = tenantId,
-                PageNumber = 1, // Default to first page
-                PageSize = 10,
-                EndDate = DateTime.Now,
-                StartDate = DateTime.Now.AddDays(-30), // Default to last 30 days
-                Status = null, // No filter by status
-                ToEmailContains = null, // No filter by recipient email
-                SubjectContains = null // No filter by subject
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                SortOrder = sortOder,
+                Status = status,
+                ToEmailContains = toEmailContains,
+                SubjectContains = subjectContains,
+                StartDate = startDate,
+                EndDate = endDate
             };
 
             return Results.Ok(await mediator.Send(query));
         })
         .WithName("GetEmailsForTenant")
         .Produces<PaginatedList<EmailDto>>(StatusCodes.Status200OK);
+        //};
 
-        // GET /api/v1/tenants/{tenantId}/emails/{emailId} - Retrieve a single email by ID
+
+        // GET /api/v1/tenants/{tenantId}/emails/{id} - Retrieve a single email by ID
         group.MapGet("/{id:guid}", async (
-            Guid tenantId,
-            Guid emailId,
+            [FromRoute] Guid tenantId,
+            [FromRoute] Guid id,
             IMediator mediator) =>
         {
-            var query = new GetEmailByIdQuery { TenantId = tenantId, EmailId = emailId };
+            var query = new GetEmailByIdQuery { TenantId = tenantId, EmailId = id };
             var result = await mediator.Send(query);
 
             return result != null ? Results.Ok(result) : Results.NotFound();

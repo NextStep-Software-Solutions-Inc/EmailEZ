@@ -7,10 +7,7 @@ public class Email : BaseEntity
 {
     public Guid TenantId { get; set; } // Explicitly defined TenantId
     public Guid? ExternalId { get; set; }
-
-    // New: Reference to the EmailConfiguration used for sending
-    public Guid EmailConfigurationId { get; set; } // <--- ADD THIS LINE
-
+    public Guid EmailConfigurationId { get; set; } 
     public string FromAddress { get; set; } = string.Empty;
     public List<string> ToAddresses { get; set; } = new List<string>();
     public List<string>? CcAddresses { get; set; }

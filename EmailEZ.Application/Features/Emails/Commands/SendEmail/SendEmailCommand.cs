@@ -5,11 +5,13 @@ namespace EmailEZ.Application.Features.Emails.Commands.SendEmail;
 public record SendEmailCommand(
     Guid TenantId,
     Guid EmailConfigurationId, // The ID of the specific email config to use
-    string ToEmail,
+    List<string> ToEmail,
     string Subject,
     string Body,
     bool IsHtml,
-    string? FromDisplayName // Optional: Overrides the config's DisplayName if provided
+    string? FromDisplayName, // Optional: Overrides the config's DisplayName if provided
+    List<string>? CcEmail = null, // Optional CC list
+    List<string>? BccEmail = null // Optional BCC list
 ) : IRequest<SendEmailResponse>;
 
 public record SendEmailResponse(

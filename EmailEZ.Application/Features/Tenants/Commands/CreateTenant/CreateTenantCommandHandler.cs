@@ -1,10 +1,7 @@
-﻿using MediatR;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using EmailEZ.Application.Interfaces; // For IApplicationDbContext, IApiKeyHasher, ISmtpPasswordEncryptor
 using EmailEZ.Domain.Entities;
-using EmailEZ.Application.Interfaces; // For IApplicationDbContext, IApiKeyHasher, ISmtpPasswordEncryptor
+using MediatR;
 using Microsoft.EntityFrameworkCore; // For .AnyAsync(), .FirstOrDefaultAsync() for domain uniqueness checks
-using System;
 
 namespace EmailEZ.Application.Features.Tenants.Commands.CreateTenant;
 

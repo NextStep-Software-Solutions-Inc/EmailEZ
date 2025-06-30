@@ -32,6 +32,7 @@ public class GetEmailConfigurationByIdQueryHandler : IRequestHandler<GetEmailCon
             config.SmtpPort,
             config.UseSsl,
             config.Username,
+            config.FromEmail,
             config.DisplayName,
             config.CreatedAt
         );

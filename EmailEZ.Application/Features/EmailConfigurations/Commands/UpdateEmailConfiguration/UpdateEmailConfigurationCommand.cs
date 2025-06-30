@@ -9,7 +9,8 @@ public record UpdateEmailConfigurationCommand(
     int SmtpPort,
     bool UseSsl,
     string Username,
-    string Password, // REMINDER: This will be encrypted before saving
+    string FromEmail,
+    string Password, 
     string DisplayName
 ) : IRequest<UpdateEmailConfigurationResponse>;
 

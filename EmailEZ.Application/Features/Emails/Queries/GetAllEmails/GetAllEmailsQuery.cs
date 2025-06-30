@@ -1,14 +1,17 @@
 ﻿using MediatR;
 using EmailEZ.Application.Common.Models; // For PaginatedList
-using EmailEZ.Domain.Enums; // For EmailStatus
+using EmailEZ.Domain.Enums;
+using EmailEZ.Application.Features.Emails.Dtos;
+using EmailEZ.Application.Common; // For EmailStatus
 
-namespace EmailEZ.Application.Features.Emails.Queries.GetEmails;
+namespace EmailEZ.Application.Features.Emails.Queries.GetAllEmails;
 
 public record GetAllEmailsQuery() : IRequest<PaginatedList<EmailDto>>
 {
     public Guid TenantId { get; set; }
     public int PageNumber { get; set; } = 1;
     public int PageSize { get; set; } = 10; // Default page size
+    public string SortOrder { get; set; } = SortOder.Descending;
 
     // Optional filters
     public EmailStatus? Status { get; set; } // Filter by email status
@@ -19,7 +22,4 @@ public record GetAllEmailsQuery() : IRequest<PaginatedList<EmailDto>>
 }
 
 
-public record GetEmailsResponse()
-{
 
-}

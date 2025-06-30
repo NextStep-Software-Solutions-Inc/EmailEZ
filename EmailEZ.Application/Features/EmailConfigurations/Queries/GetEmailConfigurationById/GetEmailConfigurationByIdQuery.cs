@@ -11,6 +11,7 @@ public record GetEmailConfigurationByIdResponse(
     int SmtpPort,
     bool UseSsl,
     string Username,
+    string FromEmail,
     string DisplayName,
     DateTimeOffset CreatedAtUtc
 // Note: Password is NOT returned for security reasons

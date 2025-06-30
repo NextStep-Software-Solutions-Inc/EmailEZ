@@ -34,7 +34,8 @@ public class UpdateEmailConfigurationCommandHandler : IRequestHandler<UpdateEmai
             .AnyAsync(ec => ec.TenantId == request.TenantId &&
                             ec.SmtpHost == request.SmtpHost &&
                             ec.Username == request.Username &&
-                            ec.Id != request.Id, // Ensure we're not checking against itself
+                            ec.FromEmail == request.FromEmail && 
+                            ec.Id != request.Id,
                             cancellationToken);
 
         if (existingConfigWithSameHostAndUsername)
@@ -47,6 +48,7 @@ public class UpdateEmailConfigurationCommandHandler : IRequestHandler<UpdateEmai
         config.SmtpPort = request.SmtpPort;
         config.UseSsl = request.UseSsl;
         config.Username = request.Username;
+        config.FromEmail = request.FromEmail;
 
         // IMPORTANT: If you implemented password encryption, you'd encrypt the new password here
         if (!string.IsNullOrEmpty(request.Password))

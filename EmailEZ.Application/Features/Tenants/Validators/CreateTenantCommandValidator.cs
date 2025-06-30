@@ -1,7 +1,7 @@
-﻿using FluentValidation;
-using System;
+﻿using EmailEZ.Application.Features.Tenants.Commands.CreateTenant;
+using FluentValidation;
 
-namespace EmailEZ.Application.Features.Tenants.Commands.CreateTenant;
+namespace EmailEZ.Application.Features.Tenants.Valicators;
 
 /// <summary>
 /// Validator for the CreateTenantCommand.

@@ -25,6 +25,7 @@ public class GetAllEmailConfigurationsQueryHandler : IRequestHandler<GetAllEmail
                 ec.SmtpPort,
                 ec.UseSsl,
                 ec.Username,
+                ec.FromEmail,
                 ec.DisplayName,
                 ec.CreatedAt
             ))
