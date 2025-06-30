@@ -1,6 +1,6 @@
 ﻿namespace EmailEZ.Application.Interfaces;
 
-public interface ISmtpPasswordEncryptor
+public interface IEncryptionService
 {
     string Encrypt(string plainText);
     string Decrypt(string encryptedText);

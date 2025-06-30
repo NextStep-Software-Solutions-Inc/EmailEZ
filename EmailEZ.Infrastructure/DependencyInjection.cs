@@ -8,7 +8,7 @@ using Hangfire;
 using Hangfire.PostgreSql;
 using EmailEZ.Infrastructure.Services.EmailSender; // For IEmailSenderService, MailKitEmailSenderService
 using EmailEZ.Infrastructure.Services.Security.PasswordHasher; // For IPasswordHasher, PasswordHasher
-using EmailEZ.Infrastructure.Services.Security.Encryption; // For ISmtpPasswordEncryptor, SmtpPasswordEncryptor
+using EmailEZ.Infrastructure.Services.Security; // For ISmtpPasswordEncryptor, SmtpPasswordEncryptor
 
 namespace EmailEZ.Infrastructure;
 
@@ -37,7 +37,7 @@ public static class DependencyInjection
 
         // Register Password Hasher and Encryptor (Singleton as they are stateless)
         services.AddSingleton<IApiKeyHasher, ApiKeyHasher>();
-        services.AddSingleton<ISmtpPasswordEncryptor, SmtpPasswordEncryptor>();
+
 
         // Register Email Sender Service
         services.AddTransient<IEmailSenderService, MailKitEmailSenderService>(); // Transient for new instance per send
@@ -53,7 +53,6 @@ public static class DependencyInjection
             config.UsePostgreSqlStorage(options =>
             {
                 options.UseNpgsqlConnection(configuration.GetConnectionString("HangfireConnection"));
-               
             });
         });
 
@@ -62,6 +61,18 @@ public static class DependencyInjection
             option.SchedulePollingInterval = TimeSpan.FromSeconds(1);
         }); // This adds the background worker processes
 
+
+        // Read encryption settings from configuration
+        var encryptionKey = configuration["EncryptionSettings:Key"];
+        var encryptionIV = configuration["EncryptionSettings:IV"];
+
+        // Ensure encryptionKey and encryptionIV are not null or empty
+        if (string.IsNullOrWhiteSpace(encryptionKey) || string.IsNullOrWhiteSpace(encryptionIV))
+        {
+            throw new InvalidOperationException("EncryptionSettings:Key and EncryptionSettings:IV must be configured in the application settings.");
+        }
+
+        services.AddSingleton<IEncryptionService>(new AesEncryptionService(encryptionKey, encryptionIV));
         return services;
     }
 }

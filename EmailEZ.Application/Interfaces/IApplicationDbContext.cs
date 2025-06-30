@@ -16,6 +16,8 @@ public interface IApplicationDbContext
     DbSet<EmailEvent> EmailEvents { get; }
     DbSet<AuditLog> AuditLogs { get; }
 
+    DbSet<EmailConfiguration> EmailConfigurations { get; }
+
     /// <summary>
     /// Saves all changes made in this context to the underlying database.
     /// </summary>

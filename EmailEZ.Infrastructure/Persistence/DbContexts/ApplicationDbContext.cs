@@ -1,4 +1,5 @@
-﻿using EmailEZ.Application.Interfaces; // For ICurrentUserService and IApplicationDbContext
+﻿using System.Reflection.Emit;
+using EmailEZ.Application.Interfaces; // For ICurrentUserService and IApplicationDbContext
 using EmailEZ.Domain.Common; // For BaseEntity
 using EmailEZ.Domain.Entities; // For our entities
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +20,8 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
 
     // DbSets - must match IApplicationDbContext interface
     public DbSet<Tenant> Tenants { get; set; } = null!;
+
+    public DbSet<EmailConfiguration> EmailConfigurations { get; set; }
     public DbSet<Email> Emails { get; set; } = null!;
     public DbSet<EmailAttachment> EmailAttachments { get; set; } = null!;
     public DbSet<EmailEvent> EmailEvents { get; set; } = null!;
@@ -113,6 +116,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         ConfigureEmailAttachment(modelBuilder.Entity<EmailAttachment>());
         ConfigureEmailEvent(modelBuilder.Entity<EmailEvent>());
         ConfigureAuditLog(modelBuilder.Entity<AuditLog>());
+        ConfigureEmailConfiguration(modelBuilder.Entity<EmailConfiguration>());
 
         base.OnModelCreating(modelBuilder); // Always call base implementation last
     }
@@ -128,9 +132,6 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         entity.Property(t => t.Name).IsRequired().HasMaxLength(255);
         entity.Property(t => t.ApiKeyHash).IsRequired().HasMaxLength(255);
         entity.Property(t => t.Domain).IsRequired().HasMaxLength(255);
-        entity.Property(t => t.SmtpHost).IsRequired().HasMaxLength(255);
-        entity.Property(t => t.SmtpUsername).IsRequired().HasMaxLength(255);
-        entity.Property(t => t.SmtpPasswordEncrypted).IsRequired().HasColumnType("text"); // Use text for potentially long encrypted strings
     }
 
     private void ConfigureEmail(EntityTypeBuilder<Email> entity)
@@ -230,5 +231,20 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         entity.HasIndex(al => al.TenantId);
         entity.HasIndex(al => al.EventType);
         entity.HasIndex(al => al.CreatedAt); // Using BaseEntity.CreatedAt for audit timestamp
+    }
+
+    private void ConfigureEmailConfiguration(EntityTypeBuilder<EmailConfiguration> entity) {
+        entity.HasKey(e => e.Id); // Define primary key if not covered by BaseAuditableEntity
+
+        // Configure the one-to-many relationship with Tenant
+        entity.HasOne(e => e.Tenant)             // An EmailConfiguration has one Tenant
+                .WithMany()                        // A Tenant can have many EmailConfigurations (no navigation property on Tenant side)
+                .HasForeignKey(e => e.TenantId)    // EmailConfiguration.TenantId is the foreign key
+                .IsRequired()                      // An EmailConfiguration must be linked to a Tenant
+                .OnDelete(DeleteBehavior.Cascade); // If a Tenant is deleted, delete its EmailConfigurations
+
+        // You might want to make SmtpHost + Username unique per Tenant if only one config per tenant is allowed
+        // entity.HasIndex(e => new { e.TenantId, e.SmtpHost, e.Username }).IsUnique();
+
     }
 }

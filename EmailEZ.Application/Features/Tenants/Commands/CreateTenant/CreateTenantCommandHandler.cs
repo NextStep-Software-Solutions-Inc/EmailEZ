@@ -15,13 +15,13 @@ public class CreateTenantCommandHandler : IRequestHandler<CreateTenantCommand, C
 {
     private readonly IApplicationDbContext _context;
     private readonly IApiKeyHasher _apiKeyHasher;
-    private readonly ISmtpPasswordEncryptor _smtpPasswordEncryptor;
+    private readonly IEncryptionService _smtpPasswordEncryptor;
     private readonly ICurrentUserService _currentUserService; // To track who created it
 
     public CreateTenantCommandHandler(
         IApplicationDbContext context,
         IApiKeyHasher apiKeyHasher,
-        ISmtpPasswordEncryptor smtpPasswordEncryptor,
+        IEncryptionService smtpPasswordEncryptor,
         ICurrentUserService currentUserService)
     {
         _context = context;
@@ -54,22 +54,12 @@ public class CreateTenantCommandHandler : IRequestHandler<CreateTenantCommand, C
         var newPlaintextApiKey = Guid.NewGuid().ToString("N"); // N format for no hyphens
         var hashedApiKey = _apiKeyHasher.HashApiKey(newPlaintextApiKey);
 
-        // 4. Encrypt the SMTP password
-        var encryptedSmtpPassword = _smtpPasswordEncryptor.Encrypt(request.SmtpPassword);
-
         // 5. Create the new Tenant entity
         var tenant = new Tenant
         {
             Name = request.Name,
             ApiKeyHash = hashedApiKey,
             Domain = request.Domain,
-            SmtpHost = request.SmtpHost,
-            SmtpPort = request.SmtpPort,
-            SmtpUsername = request.SmtpUsername,
-            SmtpPasswordEncrypted = encryptedSmtpPassword,
-            SmtpEnableSsl = request.SmtpEnableSsl,
-            // BaseEntity properties (CreatedAt, CreatedBy, UpdatedAt, UpdatedBy, IsDeleted, DeletedAt, DeletedBy)
-            // will be automatically set by ApplicationDbContext.SaveChanges() override
         };
 
         // 6. Add to DbContext and save

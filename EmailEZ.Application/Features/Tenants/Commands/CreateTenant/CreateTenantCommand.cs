@@ -11,11 +11,7 @@ public class CreateTenantCommand : IRequest<CreateTenantResponse>
 {
     public string Name { get; set; } = string.Empty;
     public string Domain { get; set; } = string.Empty;
-    public string SmtpHost { get; set; } = string.Empty;
-    public int SmtpPort { get; set; }
-    public string SmtpUsername { get; set; } = string.Empty;
-    public string SmtpPassword { get; set; } = string.Empty; // Plaintext, will be encrypted by handler
-    public bool SmtpEnableSsl { get; set; } = true; // Default to true
+    
 }
 
 /// <summary>

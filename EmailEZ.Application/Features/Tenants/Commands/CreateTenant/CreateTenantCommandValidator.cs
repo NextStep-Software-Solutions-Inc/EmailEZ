@@ -18,25 +18,6 @@ public class CreateTenantCommandValidator : AbstractValidator<CreateTenantComman
             .NotEmpty().WithMessage("Domain is required.")
             .MaximumLength(255).WithMessage("Domain must not exceed 255 characters.")
             .Must(BeAValidDomain).WithMessage("Please provide a valid domain format.");
-
-        RuleFor(x => x.SmtpHost)
-            .NotEmpty().WithMessage("SMTP Host is required.")
-            .MaximumLength(255).WithMessage("SMTP Host must not exceed 255 characters.");
-
-        RuleFor(x => x.SmtpPort)
-            .InclusiveBetween(1, 65535).WithMessage("SMTP Port must be a valid port number (1-65535).");
-
-        RuleFor(x => x.SmtpUsername)
-            .NotEmpty().WithMessage("SMTP Username is required.")
-            .MaximumLength(255).WithMessage("SMTP Username must not exceed 255 characters.");
-
-        RuleFor(x => x.SmtpPassword)
-            .NotEmpty().WithMessage("SMTP Password is required.");
-        // We don't typically set a max length here as it will be encrypted and stored as TEXT
-        // You might add complexity rules if needed, but for an SMTP password, it's provided by the client.
-
-        RuleFor(x => x.SmtpEnableSsl)
-            .NotNull().WithMessage("SMTP Enable SSL must be specified.");
     }
 
     private bool BeAValidDomain(string domain)
