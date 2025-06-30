@@ -11,5 +11,5 @@ public interface ICurrentUserService
     /// </summary>
     Guid? GetCurrentUserId();
 
-    
+    Guid? GetCurrentTenantId();
 }
