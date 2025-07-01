@@ -16,7 +16,7 @@ public static class DependencyInjection
     {
         // Register DbContext
         services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"),
+            options.UseNpgsql(configuration.GetConnectionString("PostgreSqlConnection"),
                 npgsqlOptions =>
                 {
                     // Configure Npgsql specific options if needed
