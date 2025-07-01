@@ -63,7 +63,7 @@ jobs:
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.DO_DROPLET_IP }}
-          username: ${{ secrets.DO_USERNAME }}
+          username: ${{ secrets.DO_SSH_USER }}
           key: ${{ secrets.DO_SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.DO_SSH_PASSPHRASE }}
           script: |
@@ -82,4 +82,4 @@ jobs:
             docker rm ${{ env.CONTAINER_NAME}} || true
             docker image rm ${{ env.IMAGE_NAME }}:dev || true
             docker pull ${{ env.IMAGE_NAME }}:dev
-            docker run -cpus=".5" -d -p 71:${{ env.CONTAINER_PORT }} --name ${{ env.CONTAINER_NAME}} ${{ env.IMAGE_NAME }}:dev
+            docker run --cpus=".5" -d -p 71:${{ env.CONTAINER_PORT }} --name ${{ env.CONTAINER_NAME}} ${{ env.IMAGE_NAME }}:dev
