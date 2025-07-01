@@ -4,7 +4,6 @@ using EmailEZ.Api.Filters;
 using EmailEZ.Api.Middleware;
 using EmailEZ.Application;
 using EmailEZ.Infrastructure;
-using EmailEZ.Infrastructure.Authentication;
 using EmailEZ.Infrastructure.Persistence.DbContexts;
 using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
