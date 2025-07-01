@@ -58,7 +58,7 @@ public class ApiKeyAuthenticationHandler : AuthenticationHandler<ApiKeyAuthentic
                                                 t.Name,
                                                 t.Domain,
                                                 t.ApiKeyHash,
-                                                //t.ApiKeyLastUsedAt
+                                                t.ApiKeyLastUsedAt
                                             })
                                             .ToListAsync(); // Executes the DB query and loads data into memory
 

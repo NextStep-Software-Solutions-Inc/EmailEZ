@@ -8,12 +8,12 @@ public interface ITenantContext
     /// <summary>
     /// Gets the unique identifier of the current tenant.
     /// </summary>
-    Guid TenantId { get; }
+    Guid? TenantId { get; }
 
     /// <summary>
     /// Gets the domain associated with the current tenant.
     /// </summary>
-    string Domain { get; }
+    string? Domain { get; }
 
     /// <summary>
     /// Indicates if a tenant has been successfully identified for the current request.
@@ -25,5 +25,5 @@ public interface ITenantContext
     /// </summary>
     /// <param name="tenantId">The ID of the identified tenant.</param>
     /// <param name="domain">The domain of the identified tenant.</param>
-    void SetTenant(Guid tenantId, string domain);
+    void SetTenant(Guid tenantId, string? domain = default);
 }

@@ -19,9 +19,7 @@ public class GetAllEmailsQueryHandler : IRequestHandler<GetAllEmailsQuery, Pagin
 
     public async Task<PaginatedList<EmailDto>> Handle(GetAllEmailsQuery request, CancellationToken cancellationToken)
     {
-        IQueryable<Email> query = _context.Emails
-            .Where(e => e.TenantId == request.TenantId)
-            .OrderByDescending(e => e.QueuedAt); // Default sort order
+        IQueryable<Email> query = _context.Emails;
 
         // Apply optional filters
         if (request.Status.HasValue)

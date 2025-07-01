@@ -5,6 +5,7 @@ using EmailEZ.Application.Features.EmailConfigurations.Commands.UpdateEmailConfi
 using EmailEZ.Application.Features.EmailConfigurations.Queries.GetAllEmailConfigurations;
 using EmailEZ.Application.Features.EmailConfigurations.Queries.GetEmailConfigurationById;
 using EmailEZ.Application.Features.Emails.Commands.SendEmail;
+using EmailEZ.Infrastructure.Authentication;
 using FluentValidation; // For ValidationException
 using MediatR;
 using Microsoft.AspNetCore.Mvc; // For [FromBody]

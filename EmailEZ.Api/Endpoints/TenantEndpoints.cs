@@ -1,6 +1,5 @@
 using System.Net; // For HttpStatusCode
 using Carter; // Required for CarterModule
-using Clerk.Net.AspNetCore.Security;
 using EmailEZ.Application.Features.Tenants.Commands.CreateTenant;
 using EmailEZ.Application.Features.Tenants.Commands.DeleteTenant;
 using EmailEZ.Application.Features.Tenants.Commands.UpdateTenant;
@@ -30,7 +29,7 @@ public class TenantEndpoints : CarterModule
         var group = app.MapGroup(TenantsBaseRoute) 
                        .WithTags("Tenants")
                        .WithOpenApi()
-                       .RequireAuthorization(ClerkAuthenticationDefaults.AuthenticationScheme); // Ensure all endpoints in this group require authorization
+                       .RequireAuthorization();
 
         // POST /api/v1/tenants (because group is /api/v1/tenants and we map to "/")
         group.MapPost("/",
