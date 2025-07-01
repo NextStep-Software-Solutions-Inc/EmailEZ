@@ -19,6 +19,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     environment: Development
+
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -34,6 +35,7 @@ jobs:
   docker_build_and_push:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
+    environment: Development
 
     steps:
       - name: Check out code
@@ -52,6 +54,7 @@ jobs:
   deploy:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
+    environment: Development
     needs: [docker_build_and_push]
 
     steps:
