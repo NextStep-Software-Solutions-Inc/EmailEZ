@@ -1,14 +1,13 @@
-using System.Text;
 using Carter;
+using Clerk.Net.AspNetCore.Security;
 using EmailEZ.Api.Filters;
 using EmailEZ.Application;
 using EmailEZ.Infrastructure;
 using EmailEZ.Infrastructure.Authentication;
 using EmailEZ.Infrastructure.Persistence.DbContexts;
 using Hangfire;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,35 +23,27 @@ builder.Configuration
     .AddCommandLine(args);
 
 // Add services to the container.
-builder.Services.AddAuthentication(options =>
-{
-    // Set a default scheme if you expect most endpoints to use one more often.
-    // If omitted, you MUST explicitly specify schemes on ALL protected endpoints.
-    // If present, endpoints without explicit schemes will try this default.
-    options.DefaultAuthenticateScheme = ApiKeyAuthenticationOptions.DefaultScheme;
-    options.DefaultChallengeScheme = ApiKeyAuthenticationOptions.DefaultScheme;
-})
-.AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(
-    ApiKeyAuthenticationOptions.DefaultScheme, // Scheme Name: "ApiKey" (from ApiKeyAuthenticationOptions.DefaultScheme)
-    null // Display name
-)
-.AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options => // Scheme Name: "Bearer" (from JwtBearerDefaults.AuthenticationScheme)
-{
-    var configuration = builder.Configuration;
-    // JWT Bearer Token validation parameters
-    options.TokenValidationParameters = new TokenValidationParameters
+builder.Services
+    .AddAuthentication(options =>
     {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = configuration["JwtSettings:Issuer"],
-        ValidAudience = configuration["JwtSettings:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtSettings:Key"] ?? throw new InvalidOperationException("JWT Key not configured.")))
-    };
-});
+        // Set your preferred default scheme, or leave unset and specify per endpoint.
+        options.DefaultScheme = ApiKeyAuthenticationOptions.DefaultScheme;
+        options.DefaultAuthenticateScheme = ApiKeyAuthenticationOptions.DefaultScheme;
+        options.DefaultChallengeScheme = ApiKeyAuthenticationOptions.DefaultScheme;
+    })
+    .AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(
+        ApiKeyAuthenticationOptions.DefaultScheme, // Scheme Name: "ApiKey" (from ApiKeyAuthenticationOptions.DefaultScheme)
+        null // Display name
+    )
+    .AddClerkAuthentication(x =>
+        {
+            x.Authority = builder.Configuration["Clerk:Authority"]!;
+            x.AuthorizedParty = builder.Configuration["Clerk:AuthorizedParty"]!;
+        }
+    );
 
 builder.Services.AddAuthorization();
+builder.Services.AddAuthorizationBuilder().SetFallbackPolicy(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build());
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -74,6 +65,7 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
+
 
 builder.Services.AddCarter();
 builder.Services.AddInfrastructureServices(builder.Configuration);

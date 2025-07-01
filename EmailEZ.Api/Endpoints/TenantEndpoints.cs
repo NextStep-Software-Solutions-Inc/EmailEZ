@@ -1,5 +1,6 @@
 using System.Net; // For HttpStatusCode
 using Carter; // Required for CarterModule
+using Clerk.Net.AspNetCore.Security;
 using EmailEZ.Application.Features.Tenants.Commands.CreateTenant;
 using EmailEZ.Application.Features.Tenants.Commands.DeleteTenant;
 using EmailEZ.Application.Features.Tenants.Commands.UpdateTenant;
@@ -29,7 +30,7 @@ public class TenantEndpoints : CarterModule
         var group = app.MapGroup(TenantsBaseRoute) 
                        .WithTags("Tenants")
                        .WithOpenApi()
-                       .RequireAuthorization(JwtBearerDefaults.AuthenticationScheme); // Ensure all endpoints in this group require authorization
+                       .RequireAuthorization(ClerkAuthenticationDefaults.AuthenticationScheme); // Ensure all endpoints in this group require authorization
 
         // POST /api/v1/tenants (because group is /api/v1/tenants and we map to "/")
         group.MapPost("/",
@@ -138,7 +139,7 @@ public class TenantEndpoints : CarterModule
                     }
                     else
                     {
-                        if (response.Message.Contains("not found"))
+                        if (!string.IsNullOrEmpty(response.Message) && response.Message.Contains("not found"))
                         {
                             return Results.NotFound(response); // 404 Not Found
                         }
@@ -180,7 +181,7 @@ public class TenantEndpoints : CarterModule
                     }
                     else
                     {
-                        if (response.Message.Contains("not found"))
+                        if (!string.IsNullOrEmpty(response.Message) && response.Message.Contains("not found"))
                         {
                             return Results.NotFound(response); // 404 Not Found
                         }
