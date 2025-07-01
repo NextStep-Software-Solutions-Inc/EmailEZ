@@ -32,7 +32,6 @@ public class EmailEndpoints : CarterModule
         // POST /api/v1/send-email
         app.MapPost("/api/v1/send-email",
         async (
-            Guid tenantId,
             [FromBody] SendEmailCommand command, // The command contains all email details
             IMediator mediator,
             ILogger<EmailConfigurationEndpoints> logger
@@ -40,12 +39,6 @@ public class EmailEndpoints : CarterModule
         {
             try
             {
-                // Ensure the tenantId from the route matches the command's tenantId
-                if (tenantId != command.TenantId)
-                {
-                    return Results.BadRequest("Tenant ID in URL path must match Tenant ID in request body.");
-                }
-
                 var response = await mediator.Send(command);
 
                 if (response.Success)
@@ -73,7 +66,7 @@ public class EmailEndpoints : CarterModule
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "An error occurred while enqueuing email send for Tenant ID: {TenantId}", tenantId);
+                logger.LogError(ex, "An error occurred while enqueuing email send for Tenant ID: {TenantId}", command.TenantId);
                 return Results.Problem("An unexpected error occurred while processing your request.", statusCode: StatusCodes.Status500InternalServerError);
             }
         })
