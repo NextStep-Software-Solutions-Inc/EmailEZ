@@ -49,7 +49,7 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-            docker build --build-arg BUILD_CONFIGURATION=${{ env.BUILD_CONFIGURATION }} --build-arg ASPNETCORE_ENVIRONMENT=${{ env.ASPNETCORE_ENVIRONMENT }} -t ${{ env.IMAGE_NAME }}:dev -f ./NTC.QoS.API/Dockerfile .
+            docker build --build-arg BUILD_CONFIGURATION=${{ env.BUILD_CONFIGURATION }} --build-arg ASPNETCORE_ENVIRONMENT=${{ env.ASPNETCORE_ENVIRONMENT }} -t ${{ env.IMAGE_NAME }}:dev -f ./EmailEZ.Api/Dockerfile .
             docker push ${{ env.IMAGE_NAME }}:dev
   deploy:
     if: github.event_name == 'push'
