@@ -1,22 +1,20 @@
-using System.Security.Claims;
 using Carter;
 using EmailEZ.Api.Filters;
 using EmailEZ.Api.Middleware;
 using EmailEZ.Application;
+using EmailEZ.Application.Interfaces;
 using EmailEZ.Infrastructure;
 using EmailEZ.Infrastructure.Persistence.DbContexts;
+using EmailEZ.Infrastructure.Persistence.Repositories;
 using Hangfire;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 var env = builder.Environment.EnvironmentName;
 
 Console.WriteLine($"Environemnt: {env}");
- 
+
 builder.Configuration
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
@@ -65,52 +63,10 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// Configure Authentication
-builder.Services
-    .AddAuthentication(options =>
-    {
-        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    })
-    .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, x =>
-    {
-        // Authority is the URL of your Clerk instance
-        x.Authority = builder.Configuration["Clerk:Authority"];
-        x.TokenValidationParameters = new TokenValidationParameters()
-        {
-            // Disable audience validation as we aren't using it
-            ValidateAudience = false,
-            NameClaimType = ClaimTypes.NameIdentifier
-        };
-        x.Events = new JwtBearerEvents()
-        {
-            // Additional validation for AZP claim
-            OnTokenValidated = context =>
-            {
-                var azp = context.Principal?.FindFirstValue("azp");
-                var authorizedParties = builder.Configuration.GetSection("Clerk:AuthorizedParties").Get<List<string>>();
-
-                if (string.IsNullOrEmpty(azp) || authorizedParties == null || !authorizedParties.Contains(azp))
-                {
-                    context.Fail("AZP Claim is invalid or missing");
-                }
-
-                return Task.CompletedTask;
-            }
-        };
-    });
-
-// Configure Authorization policy to require authorization by default
-builder.Services.AddAuthorizationBuilder()
-    .SetFallbackPolicy(new AuthorizationPolicyBuilder()
-        .RequireAuthenticatedUser()
-        .Build());
-
-builder.Services.AddAuthorization();
 builder.Services.AddCarter();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddApplicationServices();
-builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IEmailStatistics, EmailStatistics>();
 
 var app = builder.Build();
 
