@@ -12,6 +12,11 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.6" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Features\Dashboard\Handlers\Commands\" />
+    <Folder Include="Features\Dashboard\Requests\Commands\" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>

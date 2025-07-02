@@ -10,11 +10,14 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using MediatR;
+using EmailEZ.Application.Interfaces;
+using EmailEZ.Infrastructure.Persistence.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 var env = builder.Environment.EnvironmentName;
 
-Console.WriteLine($"Environemnt: {env}");
+Console.WriteLine($"Environment: {env}");
 
 builder.Configuration
     .SetBasePath(Directory.GetCurrentDirectory())
@@ -75,9 +78,11 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+builder.Services.AddControllers();
 builder.Services.AddCarter();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddApplicationServices();
+builder.Services.AddScoped<IEmailStatistics, EmailStatistics>();
 
 var app = builder.Build();
 
@@ -110,6 +115,6 @@ app.UseHangfireDashboard("/hangfire", new DashboardOptions
 {
     Authorization = new[] { new HangfireAuthorizationFilter() }
 });
-
+app.MapControllers();
 app.MapCarter();
 app.Run();
