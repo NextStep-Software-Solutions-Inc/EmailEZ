@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailEZ.Infrastructure", "E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailEZ.Api", "EmailEZ.Api\EmailEZ.Api.csproj", "{565A357C-B269-421D-BCF3-3D944A2975C3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmailEZ.Client", "EmailEZ.Client\EmailEZ.Client.csproj", "{3655F38C-BA4E-449D-ABDB-2DEA7A343ABD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,8 +71,23 @@ Global
 		{565A357C-B269-421D-BCF3-3D944A2975C3}.Release|x64.Build.0 = Release|Any CPU
 		{565A357C-B269-421D-BCF3-3D944A2975C3}.Release|x86.ActiveCfg = Release|Any CPU
 		{565A357C-B269-421D-BCF3-3D944A2975C3}.Release|x86.Build.0 = Release|Any CPU
+		{3655F38C-BA4E-449D-ABDB-2DEA7A343ABD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3655F38C-BA4E-449D-ABDB-2DEA7A343ABD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3655F38C-BA4E-449D-ABDB-2DEA7A343ABD}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3655F38C-BA4E-449D-ABDB-2DEA7A343ABD}.Debug|x64.Build.0 = Debug|Any CPU
+		{3655F38C-BA4E-449D-ABDB-2DEA7A343ABD}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3655F38C-BA4E-449D-ABDB-2DEA7A343ABD}.Debug|x86.Build.0 = Debug|Any CPU
+		{3655F38C-BA4E-449D-ABDB-2DEA7A343ABD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3655F38C-BA4E-449D-ABDB-2DEA7A343ABD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3655F38C-BA4E-449D-ABDB-2DEA7A343ABD}.Release|x64.ActiveCfg = Release|Any CPU
+		{3655F38C-BA4E-449D-ABDB-2DEA7A343ABD}.Release|x64.Build.0 = Release|Any CPU
+		{3655F38C-BA4E-449D-ABDB-2DEA7A343ABD}.Release|x86.ActiveCfg = Release|Any CPU
+		{3655F38C-BA4E-449D-ABDB-2DEA7A343ABD}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {76740028-EC30-4A73-AAC0-E0B8F3165114}
 	EndGlobalSection
 EndGlobal

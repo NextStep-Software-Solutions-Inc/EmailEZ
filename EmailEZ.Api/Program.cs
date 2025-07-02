@@ -65,7 +65,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// Configure Authentication
+//Configure Authentication
 builder.Services
     .AddAuthentication(options =>
     {
@@ -100,7 +100,7 @@ builder.Services
         };
     });
 
-// Configure Authorization policy to require authorization by default
+//Configure Authorization policy to require authorization by default
 builder.Services.AddAuthorizationBuilder()
     .SetFallbackPolicy(new AuthorizationPolicyBuilder()
         .RequireAuthenticatedUser()
