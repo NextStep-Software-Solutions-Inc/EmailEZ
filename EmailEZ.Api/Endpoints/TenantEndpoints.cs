@@ -29,7 +29,7 @@ public class TenantEndpoints : CarterModule
         var group = app.MapGroup(TenantsBaseRoute) 
                        .WithTags("Tenants")
                        .WithOpenApi()
-                       .RequireAuthorization(JwtBearerDefaults.AuthenticationScheme); // Ensure all endpoints in this group require authorization
+                       .RequireAuthorization();
 
         // POST /api/v1/tenants (because group is /api/v1/tenants and we map to "/")
         group.MapPost("/",
@@ -138,7 +138,7 @@ public class TenantEndpoints : CarterModule
                     }
                     else
                     {
-                        if (response.Message.Contains("not found"))
+                        if (!string.IsNullOrEmpty(response.Message) && response.Message.Contains("not found"))
                         {
                             return Results.NotFound(response); // 404 Not Found
                         }
@@ -180,7 +180,7 @@ public class TenantEndpoints : CarterModule
                     }
                     else
                     {
-                        if (response.Message.Contains("not found"))
+                        if (!string.IsNullOrEmpty(response.Message) && response.Message.Contains("not found"))
                         {
                             return Results.NotFound(response); // 404 Not Found
                         }

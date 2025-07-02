@@ -1,18 +1,16 @@
-﻿using Carter;
+﻿using System.ComponentModel.DataAnnotations;
+using Carter;
+using EmailEZ.Api.Filters;
+using EmailEZ.Application.Common;
 using EmailEZ.Application.Common.Models;
 using EmailEZ.Application.Features.Emails.Commands.SendEmail;
-using EmailEZ.Application.Features.Emails.Queries.GetEmailById;
 using EmailEZ.Application.Features.Emails.Dtos;
+using EmailEZ.Application.Features.Emails.Queries.GetAllEmails;
+using EmailEZ.Application.Features.Emails.Queries.GetEmailById;
+using EmailEZ.Domain.Enums;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using EmailEZ.Application.Features.Emails.Queries.GetAllEmails;
-using EmailEZ.Domain.Enums;
-using System.ComponentModel.DataAnnotations;
-using EmailEZ.Application.Common;
-using Hangfire;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using EmailEZ.Infrastructure.Authentication;
 
 namespace EmailEZ.Api.Endpoints; 
 
@@ -30,6 +28,56 @@ public class EmailEndpoints : CarterModule
                             .WithTags("Emails")
                             .WithOpenApi()
                             .RequireAuthorization();
+
+        // POST /api/v1/send-email
+        app.MapPost("/api/v1/send-email",
+        async (
+            [FromBody] SendEmailCommand command, // The command contains all email details
+            IMediator mediator,
+            ILogger<EmailConfigurationEndpoints> logger
+        ) =>
+        {
+            try
+            {
+                var response = await mediator.Send(command);
+
+                if (response.Success)
+                {
+                    // 202 Accepted: The request has been accepted for processing, but the processing is not yet complete.
+                    // This is ideal for asynchronous operations like background jobs.
+                    return Results.Accepted(null, // No specific location for a queued job
+                        value: new
+                        {
+                            response.Message,
+                            response.HangfireJobId
+                        }
+                    );
+                }
+                else
+                {
+                    // Return 400 Bad Request for business rule failures (e.g., config not found)
+                    return Results.BadRequest(response);
+                }
+            }
+            catch (FluentValidation.ValidationException ex) // If you add FluentValidation later
+            {
+                var errors = ex.Errors.ToDictionary(e => e.PropertyName, e => new[] { e.ErrorMessage });
+                return Results.ValidationProblem(errors);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred while enqueuing email send for Tenant ID: {TenantId}", command.TenantId);
+                return Results.Problem("An unexpected error occurred while processing your request.", statusCode: StatusCodes.Status500InternalServerError);
+            }
+        })
+        .WithTags("Send Email using ApiKey")
+        .WithName("SendEmail-APIKEY")
+        .Produces(StatusCodes.Status202Accepted) // Indicates the job was accepted
+        .Produces<SendEmailResponse>(StatusCodes.Status400BadRequest)
+        .ProducesValidationProblem()
+        .ProducesProblem(StatusCodes.Status500InternalServerError)
+        .AddEndpointFilter<ApiKeyAuthenticationFilter>()
+        .AllowAnonymous();
 
         // POST /api/v1/tenants/{tenantId}/send-email
         group.MapPost("/send-email",

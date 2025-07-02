@@ -9,12 +9,16 @@ namespace EmailEZ.Infrastructure.Persistence.DbContexts;
 public class ApplicationDbContext : DbContext, IApplicationDbContext
 {
     private readonly ICurrentUserService _currentUserService;
+    private readonly ITenantContext _tenantContext;
+
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options,
-                                ICurrentUserService currentUserService)
+                                ICurrentUserService currentUserService,
+                                ITenantContext tenantContext)
         : base(options)
     {
         _currentUserService = currentUserService;
+        _tenantContext = tenantContext;
     }
 
     // DbSets - must match IApplicationDbContext interface
@@ -95,25 +99,22 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
         }
     }
 
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        Console.WriteLine("Configuring ApplicationDbContext...");
+
+        base.OnConfiguring(optionsBuilder);
+    }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // Global Query Filter for soft-deletion:
         // This ensures that when you query entities, it automatically filters out those marked as IsDeleted = true.
         // To query deleted entities, use .IgnoreQueryFilters()
         modelBuilder.Entity<Tenant>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<Email>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<EmailAttachment>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<EmailEvent>().HasQueryFilter(e => !e.IsDeleted);
-        modelBuilder.Entity<AuditLog>().HasQueryFilter(e => !e.IsDeleted);
-
-        // add query filter for tenant id
-        var currentTenantId = _currentUserService.GetCurrentTenantId();
-
-        modelBuilder.Entity<Email>().HasQueryFilter(e => e.TenantId == currentTenantId);
-        modelBuilder.Entity<EmailAttachment>().HasQueryFilter(e => e.TenantId == currentTenantId);
-        modelBuilder.Entity<EmailEvent>().HasQueryFilter(e => e.TenantId == currentTenantId);
-        modelBuilder.Entity<AuditLog>().HasQueryFilter(e => e.TenantId == currentTenantId);
-
+        modelBuilder.Entity<Email>().HasQueryFilter(e => !e.IsDeleted && (!_tenantContext.TenantId.HasValue || e.TenantId == _tenantContext.TenantId));
+        modelBuilder.Entity<EmailAttachment>().HasQueryFilter(e => !e.IsDeleted && (!_tenantContext.TenantId.HasValue || e.TenantId == _tenantContext.TenantId));
+        modelBuilder.Entity<EmailEvent>().HasQueryFilter(e => !e.IsDeleted && (!_tenantContext.TenantId.HasValue || e.TenantId == _tenantContext.TenantId));
+        modelBuilder.Entity<AuditLog>().HasQueryFilter(e => !e.IsDeleted && (!_tenantContext.TenantId.HasValue || e.TenantId == _tenantContext.TenantId));
 
         // Call the entity-specific configurations here
         // We can move these into separate configuration classes later for better organization,

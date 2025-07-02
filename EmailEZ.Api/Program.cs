@@ -1,12 +1,13 @@
-using System.Text;
+using System.Security.Claims;
 using Carter;
 using EmailEZ.Api.Filters;
+using EmailEZ.Api.Middleware;
 using EmailEZ.Application;
 using EmailEZ.Infrastructure;
-using EmailEZ.Infrastructure.Authentication;
 using EmailEZ.Infrastructure.Persistence.DbContexts;
 using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -17,7 +18,7 @@ using EmailEZ.Infrastructure.Persistence.Repositories;
 var builder = WebApplication.CreateBuilder(args);
 var env = builder.Environment.EnvironmentName;
 
-Console.WriteLine($"Environment: {env}");
+Console.WriteLine($"Environemnt: {env}");
 
 builder.Configuration
     .SetBasePath(Directory.GetCurrentDirectory())
@@ -26,36 +27,9 @@ builder.Configuration
     .AddEnvironmentVariables()
     .AddCommandLine(args);
 
-// Add services to the container.
-builder.Services.AddAuthentication(options =>
-{
-    // Set a default scheme if you expect most endpoints to use one more often.
-    // If omitted, you MUST explicitly specify schemes on ALL protected endpoints.
-    // If present, endpoints without explicit schemes will try this default.
-    options.DefaultAuthenticateScheme = ApiKeyAuthenticationOptions.DefaultScheme;
-    options.DefaultChallengeScheme = ApiKeyAuthenticationOptions.DefaultScheme;
-})
-.AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(
-    ApiKeyAuthenticationOptions.DefaultScheme, // Scheme Name: "ApiKey" (from ApiKeyAuthenticationOptions.DefaultScheme)
-    null // Display name
-)
-.AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options => // Scheme Name: "Bearer" (from JwtBearerDefaults.AuthenticationScheme)
-{
-    var configuration = builder.Configuration;
-    // JWT Bearer Token validation parameters
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = configuration["JwtSettings:Issuer"],
-        ValidAudience = configuration["JwtSettings:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtSettings:Key"] ?? throw new InvalidOperationException("JWT Key not configured.")))
-    };
-});
 
-builder.Services.AddAuthorization();
+// Add services to the container.
+builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -66,6 +40,15 @@ builder.Services.AddSwaggerGen(c =>
         In = ParameterLocation.Header,
         Description = "API Key for tenant authentication"
     });
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        BearerFormat = "JWT",
+        Scheme = "bearer"
+    });
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -73,16 +56,21 @@ builder.Services.AddSwaggerGen(c =>
             {
                 Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "ApiKey" }
             },
-            new string[] { }
+            Array.Empty<string>()
+        },
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+            },
+            Array.Empty<string>()
         }
     });
 });
 
-builder.Services.AddControllers();
 builder.Services.AddCarter();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddApplicationServices();
-builder.Services.AddScoped<IEmailStatistics, EmailStatistics>();
 
 var app = builder.Build();
 
@@ -107,7 +95,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-//app.UseMiddleware<ApiKeyAuthenticationMiddleware>();
+app.UseMiddleware<TenantMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -115,6 +103,6 @@ app.UseHangfireDashboard("/hangfire", new DashboardOptions
 {
     Authorization = new[] { new HangfireAuthorizationFilter() }
 });
-app.MapControllers();
+
 app.MapCarter();
 app.Run();

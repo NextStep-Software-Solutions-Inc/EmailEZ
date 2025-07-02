@@ -4,7 +4,6 @@ using EmailEZ.Application.Features.EmailConfigurations.Commands.DeleteEmailConfi
 using EmailEZ.Application.Features.EmailConfigurations.Commands.UpdateEmailConfiguration;
 using EmailEZ.Application.Features.EmailConfigurations.Queries.GetAllEmailConfigurations;
 using EmailEZ.Application.Features.EmailConfigurations.Queries.GetEmailConfigurationById;
-using EmailEZ.Application.Features.Emails.Commands.SendEmail;
 using FluentValidation; // For ValidationException
 using MediatR;
 using Microsoft.AspNetCore.Mvc; // For [FromBody]
@@ -201,7 +200,7 @@ public class EmailConfigurationEndpoints : CarterModule
                 }
                 else
                 {
-                    if (response.Message.Contains("not found"))
+                    if (!string.IsNullOrWhiteSpace(response.Message) && response.Message.Contains("not found"))
                     {
                         return Results.NotFound(response); // 404 Not Found
                     }
