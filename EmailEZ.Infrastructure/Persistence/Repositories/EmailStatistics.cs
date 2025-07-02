@@ -9,16 +9,17 @@ public class EmailStatistics(IApplicationDbContext context) : IEmailStatistics
 
     private readonly IApplicationDbContext _context = context;
 
-    public async Task<int> GetTotalEmailCountAsync(Guid tenantId, CancellationToken cancellationToken)
+    public async Task<int> GetTotalEmailCountAsync(CancellationToken cancellationToken)
     {
-        return await _context.Emails
-            .Where(e => e.TenantId == tenantId && !e.IsDeleted)
+        var email = await _context.Emails
+            .Where(e => !e.IsDeleted)
             .CountAsync(cancellationToken);
+        return email;
     }
-    public async Task<int> GetSentEmailCountAsync(Guid tenantId, CancellationToken cancellationToken)
+    public async Task<int> GetSentEmailCountAsync(CancellationToken cancellationToken)
     {
-        var email =  await _context.Emails.IgnoreQueryFilters()
-            .Where(e => e.TenantId == tenantId && e.Status == EmailStatus.Sent && !e.IsDeleted)
+        var email =  await _context.Emails
+            .Where(e => e.Status == EmailStatus.Sent && !e.IsDeleted)
             .CountAsync(cancellationToken);
         return email;
     }
@@ -40,11 +41,12 @@ public class EmailStatistics(IApplicationDbContext context) : IEmailStatistics
     //        .Where(e => e.TenantId == tenantId && e.Status == EmailStatus.Scheduled)
     //        .CountAsync(cancellationToken);
     //}
-    public async Task<int> GetFailedEmailCountAsync(Guid tenantId, CancellationToken cancellationToken)
+    public async Task<int> GetFailedEmailCountAsync(CancellationToken cancellationToken)
     {
-        return await _context.Emails
-            .Where(e => e.TenantId == tenantId && e.Status == EmailStatus.Failed && !e.IsDeleted)
+        var email = await _context.Emails
+            .Where(e => e.Status == EmailStatus.Failed && !e.IsDeleted)
             .CountAsync(cancellationToken);
+        return email;
     }
     //public async Task<int> GetOpenedEmailCountAsync(Guid tenantId, CancellationToken cancellationToken)
     //{
@@ -64,11 +66,12 @@ public class EmailStatistics(IApplicationDbContext context) : IEmailStatistics
     //        .Where(e => e.TenantId == tenantId && e.Status == EmailStatus.Unsubscribed)
     //        .CountAsync(cancellationToken);
     //}
-    public async Task<int> GetBouncedEmailCountAsync(Guid tenantId, CancellationToken cancellationToken)
+    public async Task<int> GetBouncedEmailCountAsync(CancellationToken cancellationToken)
     {
-        return await _context.Emails
-            .Where(e => e.TenantId == tenantId && e.Status == EmailStatus.Bounced && !e.IsDeleted)
+        var email = await _context.Emails
+            .Where(e => e.Status == EmailStatus.Bounced && !e.IsDeleted)
             .CountAsync(cancellationToken);
+        return email;
     }
     //public async Task<int> GetMarkedAsSpamEmailCountAsync(Guid tenantId, CancellationToken cancellationToken)
     //{
