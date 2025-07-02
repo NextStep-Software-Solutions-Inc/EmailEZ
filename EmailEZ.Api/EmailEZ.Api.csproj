@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EmailEZ.Application\EmailEZ.Application.csproj" />
+    <ProjectReference Include="..\EmailEZ.Client\EmailEZ.Client.csproj" />
     <ProjectReference Include="..\EmailEZ.Infrastructure\EmailEZ.Infrastructure.csproj" />
   </ItemGroup>
 

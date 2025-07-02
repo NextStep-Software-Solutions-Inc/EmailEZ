@@ -3,6 +3,7 @@ using Carter;
 using EmailEZ.Api.Filters;
 using EmailEZ.Api.Middleware;
 using EmailEZ.Application;
+using EmailEZ.Client.Clients;
 using EmailEZ.Infrastructure;
 using EmailEZ.Infrastructure.Persistence.DbContexts;
 using Hangfire;
@@ -111,6 +112,18 @@ builder.Services.AddCarter();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddApplicationServices();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddHttpClient<IEmailSenderClient, EmailSenderClient>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["EmailEZ:ApiBaseUrl"]);
+
+})
+.ConfigureHttpClient(httpClient =>
+{
+    // Optional: Configure common HttpClient properties here
+    httpClient.Timeout = TimeSpan.FromSeconds(30); // Example: 30-second timeout
+});
+
+
 
 var app = builder.Build();
 

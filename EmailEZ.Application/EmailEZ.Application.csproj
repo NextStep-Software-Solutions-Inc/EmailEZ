@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <ProjectReference Include="..\EmailEZ.Client\EmailEZ.Client.csproj" />
     <ProjectReference Include="..\EmailEZ.Domain\EmailEZ.Domain.csproj" />
   </ItemGroup>
 
