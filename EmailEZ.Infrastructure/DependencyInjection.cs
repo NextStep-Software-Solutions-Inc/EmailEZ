@@ -66,7 +66,7 @@ public static class DependencyInjection
         // Ensure encryptionKey and encryptionIV are not null or empty
         if (string.IsNullOrWhiteSpace(encryptionKey))
         {
-            throw new InvalidOperationException("EncryptionSettings:Ke must be configured in the application settings.");
+            throw new InvalidOperationException("EncryptionSettings:Key must be configured in the application settings.");
         }
 
         services.AddSingleton<IEncryptionService>(new AesEncryptionService(encryptionKey));
