@@ -66,6 +66,30 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+// Add CORS services
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        if (builder.Environment.IsDevelopment())
+        {
+            // Allow all origins in development
+            policy.AllowAnyOrigin()
+                  .AllowAnyMethod()
+                  .AllowAnyHeader();
+        }
+        else
+        {
+            // Configure specific origins for production
+            var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+            policy.WithOrigins(allowedOrigins)
+                  .AllowAnyMethod()
+                  .AllowAnyHeader()
+                  .AllowCredentials();
+        }
+    });
+});
+
 //Configure Authentication
 builder.Services
     .AddAuthentication(options =>
@@ -148,6 +172,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCors();
 app.UseMiddleware<WorkspaceMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
