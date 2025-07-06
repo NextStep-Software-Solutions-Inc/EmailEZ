@@ -51,7 +51,7 @@ public class GetAllEmailsQueryHandler : IRequestHandler<GetAllEmailsQuery, Pagin
         var projectedQuery = query.Select(e => new EmailDto
         {
             Id = e.Id,
-            TenantId = e.TenantId,
+            WorkspaceId = e.WorkspaceId,
             FromAddress = e.FromAddress,
             ToAddresses = e.ToAddresses,
             Subject = e.Subject,

@@ -3,7 +3,7 @@
 namespace EmailEZ.Application.Features.Emails.Commands.SendEmail;
 
 public record SendEmailCommand(
-    Guid TenantId,
+    Guid WorkspaceId,
     Guid EmailConfigurationId, // The ID of the specific email config to use
     List<string> ToEmail,
     string Subject,

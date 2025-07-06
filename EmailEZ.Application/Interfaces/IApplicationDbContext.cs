@@ -10,7 +10,7 @@ namespace EmailEZ.Application.Interfaces;
 /// </summary>
 public interface IApplicationDbContext
 {
-    DbSet<Tenant> Tenants { get; }
+    DbSet<Workspace> Workspaces { get; }
     DbSet<Email> Emails { get; }
     DbSet<EmailAttachment> EmailAttachments { get; }
     DbSet<EmailEvent> EmailEvents { get; }

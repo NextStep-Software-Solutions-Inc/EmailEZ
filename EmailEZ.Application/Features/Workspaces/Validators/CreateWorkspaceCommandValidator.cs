@@ -1,18 +1,18 @@
-﻿using EmailEZ.Application.Features.Tenants.Commands.CreateTenant;
+﻿using EmailEZ.Application.Features.Workspaces.Commands.CreateWorkspace;
 using FluentValidation;
 
-namespace EmailEZ.Application.Features.Tenants.Valicators;
+namespace EmailEZ.Application.Features.Workspaces.Validators;
 
 /// <summary>
-/// Validator for the CreateTenantCommand.
+/// Validator for the CreateWorkspaceCommand.
 /// </summary>
-public class CreateTenantCommandValidator : AbstractValidator<CreateTenantCommand>
+public class CreateWorkspaceCommandValidator : AbstractValidator<CreateWorkspaceCommand>
 {
-    public CreateTenantCommandValidator()
+    public CreateWorkspaceCommandValidator()
     {
         RuleFor(x => x.Name)
-            .NotEmpty().WithMessage("Tenant name is required.")
-            .MaximumLength(255).WithMessage("Tenant name must not exceed 255 characters.");
+            .NotEmpty().WithMessage("Workspace name is required.")
+            .MaximumLength(255).WithMessage("Workspace name must not exceed 255 characters.");
 
         RuleFor(x => x.Domain)
             .NotEmpty().WithMessage("Domain is required.")

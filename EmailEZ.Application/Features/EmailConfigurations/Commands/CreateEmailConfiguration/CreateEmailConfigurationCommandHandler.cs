@@ -19,24 +19,24 @@ public class CreateEmailConfigurationCommandHandler : IRequestHandler<CreateEmai
 
     public async Task<CreateEmailConfigurationResponse> Handle(CreateEmailConfigurationCommand request, CancellationToken cancellationToken)
     {
-        // Optional: Basic validation if a tenant can only have one active configuration, etc.
-        // Or if SmtpHost+Username must be unique per tenant.
-        var tenantExists = await _context.Tenants.AnyAsync(t => t.Id == request.TenantId, cancellationToken);
-        if (!tenantExists)
+        // Optional: Basic validation if a workspace can only have one active configuration, etc.
+        // Or if SmtpHost+Username must be unique per workspace.
+        var workspaceExists = await _context.Workspaces.AnyAsync(t => t.Id == request.WorkspaceId, cancellationToken);
+        if (!workspaceExists)
         {
-            return new CreateEmailConfigurationResponse(Guid.Empty, false, $"Tenant with ID '{request.TenantId}' not found.");
+            return new CreateEmailConfigurationResponse(Guid.Empty, false, $"Workspace with ID '{request.WorkspaceId}' not found.");
         }
 
-        // Check for duplicate configuration for the same tenant (e.g., same host/username combo)
+        // Check for duplicate configuration for the same workspace (e.g., same host/username combo)
         var existingConfig = await _context.EmailConfigurations
-            .AnyAsync(ec => ec.TenantId == request.TenantId &&
+            .AnyAsync(ec => ec.WorkspaceId == request.WorkspaceId &&
                             ec.SmtpHost == request.SmtpHost &&
-                            ec.Username == request.Username, // Assuming username is unique per host per tenant
+                            ec.Username == request.Username, // Assuming username is unique per host per workspace
                             cancellationToken);
 
         if (existingConfig)
         {
-            return new CreateEmailConfigurationResponse(Guid.Empty, false, "A configuration with this SMTP Host and Username already exists for this tenant.");
+            return new CreateEmailConfigurationResponse(Guid.Empty, false, "A configuration with this SMTP Host and Username already exists for this workspace.");
         }
 
 
@@ -49,7 +49,7 @@ public class CreateEmailConfigurationCommandHandler : IRequestHandler<CreateEmai
 
         var emailConfig = new EmailConfiguration
         {
-            TenantId = request.TenantId,
+            WorkspaceId = request.WorkspaceId,
             SmtpHost = request.SmtpHost,
             SmtpPort = request.SmtpPort,
             UseSsl = request.UseSsl,

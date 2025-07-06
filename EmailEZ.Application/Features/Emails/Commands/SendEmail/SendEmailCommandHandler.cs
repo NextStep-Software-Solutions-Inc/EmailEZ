@@ -26,11 +26,11 @@ public class SendEmailCommandHandler : IRequestHandler<SendEmailCommand, SendEma
     public async Task<SendEmailResponse> Handle(SendEmailCommand request, CancellationToken cancellationToken)
     {
         var emailConfig = await _context.EmailConfigurations
-            .FirstOrDefaultAsync(ec => ec.Id == request.EmailConfigurationId && ec.TenantId == request.TenantId, cancellationToken);
+            .FirstOrDefaultAsync(ec => ec.Id == request.EmailConfigurationId && ec.WorkspaceId == request.WorkspaceId, cancellationToken);
 
         if (emailConfig == null)
         {
-            return new SendEmailResponse(false, $"Email configuration with ID '{request.EmailConfigurationId}' not found for tenant '{request.TenantId}'.");
+            return new SendEmailResponse(false, $"Email configuration with ID '{request.EmailConfigurationId}' not found for workspace '{request.WorkspaceId}'.");
         }
 
         var emailMessage = new EmailMessage
@@ -47,7 +47,7 @@ public class SendEmailCommandHandler : IRequestHandler<SendEmailCommand, SendEma
         // Create the Email entity here with initial queued status
         var emailToLog = new Email
         {
-            TenantId = request.TenantId,
+            WorkspaceId = request.WorkspaceId,
             EmailConfigurationId = request.EmailConfigurationId,
             FromAddress = emailConfig.FromEmail,
 

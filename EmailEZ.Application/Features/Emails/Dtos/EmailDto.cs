@@ -5,7 +5,7 @@ namespace EmailEZ.Application.Features.Emails.Dtos;
 public class EmailDto
 {
     public Guid Id { get; set; }
-    public Guid TenantId { get; set; }
+    public Guid WorkspaceId { get; set; }
     public required string FromAddress { get; set; }
     public List<string> ToAddresses { get; set; } = new List<string>();
     public string Subject { get; set; } = string.Empty;

@@ -8,7 +8,7 @@ namespace EmailEZ.Application.Features.Emails.Queries.GetAllEmails;
 
 public record GetAllEmailsQuery() : IRequest<PaginatedList<EmailDto>>
 {
-    public Guid TenantId { get; set; }
+    public Guid WorkspaceId { get; set; }
     public int PageNumber { get; set; } = 1;
     public int PageSize { get; set; } = 10; // Default page size
     public string SortOrder { get; set; } = SortOder.Descending;

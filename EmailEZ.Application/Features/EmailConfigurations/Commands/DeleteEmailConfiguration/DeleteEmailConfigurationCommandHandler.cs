@@ -15,13 +15,13 @@ public class DeleteEmailConfigurationCommandHandler : IRequestHandler<DeleteEmai
 
     public async Task<DeleteEmailConfigurationResponse> Handle(DeleteEmailConfigurationCommand request, CancellationToken cancellationToken)
     {
-        // 1. Find the email configuration within the specified tenant
+        // 1. Find the email configuration within the specified workspace
         var config = await _context.EmailConfigurations
-            .FirstOrDefaultAsync(ec => ec.Id == request.Id && ec.TenantId == request.TenantId, cancellationToken);
+            .FirstOrDefaultAsync(ec => ec.Id == request.Id && ec.WorkspaceId == request.WorkspaceId, cancellationToken);
 
         if (config == null)
         {
-            return new DeleteEmailConfigurationResponse(false, $"Email configuration with ID '{request.Id}' not found for tenant '{request.TenantId}'.");
+            return new DeleteEmailConfigurationResponse(false, $"Email configuration with ID '{request.Id}' not found for workspace '{request.WorkspaceId}'.");
         }
 
         // 2. Remove the configuration

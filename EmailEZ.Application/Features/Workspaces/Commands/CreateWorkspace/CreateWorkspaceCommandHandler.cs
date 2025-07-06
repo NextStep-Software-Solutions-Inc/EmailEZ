@@ -3,17 +3,17 @@ using EmailEZ.Domain.Entities;
 using MediatR;
 using Microsoft.EntityFrameworkCore; // For .AnyAsync(), .FirstOrDefaultAsync() for domain uniqueness checks
 
-namespace EmailEZ.Application.Features.Tenants.Commands.CreateTenant;
+namespace EmailEZ.Application.Features.Workspaces.Commands.CreateWorkspace;
 
 /// <summary>
-/// Handles the creation of a new Tenant.
+/// Handles the creation of a new Workspace.
 /// </summary>
-public class CreateTenantCommandHandler : IRequestHandler<CreateTenantCommand, CreateTenantResponse>
+public class CreateWorkspaceCommandHandler : IRequestHandler<CreateWorkspaceCommand, CreateWorkspaceResponse>
 {
     private readonly IApplicationDbContext _context;
     private readonly IApiKeyHasher _apiKeyHasher;
 
-    public CreateTenantCommandHandler(
+    public CreateWorkspaceCommandHandler(
         IApplicationDbContext context,
         IApiKeyHasher apiKeyHasher,
         IEncryptionService smtpPasswordEncryptor,
@@ -23,32 +23,32 @@ public class CreateTenantCommandHandler : IRequestHandler<CreateTenantCommand, C
         _apiKeyHasher = apiKeyHasher;
     }
 
-    public async Task<CreateTenantResponse> Handle(CreateTenantCommand request, CancellationToken cancellationToken)
+    public async Task<CreateWorkspaceResponse> Handle(CreateWorkspaceCommand request, CancellationToken cancellationToken)
     {
         // 1. Business Rule: Ensure tenant name is unique
-        var existingTenantWithName = await _context.Tenants
+        var existingWorkspaceWithName = await _context.Workspaces
             .IgnoreQueryFilters() // Ignore IsDeleted filter to check against all existing tenants
             .FirstOrDefaultAsync(t => t.Name == request.Name, cancellationToken);
-        if (existingTenantWithName != null)
+        if (existingWorkspaceWithName != null)
         {
-            return new CreateTenantResponse { IsSuccess = false, Message = $"Tenant with name '{request.Name}' already exists." };
+            return new CreateWorkspaceResponse { IsSuccess = false, Message = $"Workspace with name '{request.Name}' already exists." };
         }
 
         // 2. Business Rule: Ensure tenant domain is unique
-        var existingTenantWithDomain = await _context.Tenants
+        var existingWorkspaceWithDomain = await _context.Workspaces
             .IgnoreQueryFilters()
             .FirstOrDefaultAsync(t => t.Domain == request.Domain, cancellationToken);
-        if (existingTenantWithDomain != null)
+        if (existingWorkspaceWithDomain != null)
         {
-            return new CreateTenantResponse { IsSuccess = false, Message = $"Tenant with domain '{request.Domain}' already exists." };
+            return new CreateWorkspaceResponse { IsSuccess = false, Message = $"Workspace with domain '{request.Domain}' already exists." };
         }
 
         // 3. Generate a new API Key for the tenant
         var newPlaintextApiKey = Guid.NewGuid().ToString("N"); // N format for no hyphens
         var hashedApiKey = _apiKeyHasher.HashApiKey(newPlaintextApiKey);
 
-        // 5. Create the new Tenant entity
-        var tenant = new Tenant
+        // 5. Create the new Workspace entity
+        var tenant = new Workspace
         {
             Name = request.Name,
             ApiKeyHash = hashedApiKey,
@@ -57,18 +57,18 @@ public class CreateTenantCommandHandler : IRequestHandler<CreateTenantCommand, C
         };
 
         // 6. Add to DbContext and save
-        _context.Tenants.Add(tenant);
+        _context.Workspaces.Add(tenant);
         await _context.SaveChangesAsync(cancellationToken);
 
         // 7. Return the response, including the plaintext API Key (which is only shown upon creation)
-        return new CreateTenantResponse
+        return new CreateWorkspaceResponse
         {
-            TenantId = tenant.Id,
+            WorkspaceId = tenant.Id,
             Name = tenant.Name,
             Domain = tenant.Domain,
             ApiKey = newPlaintextApiKey, // Crucial: return the plaintext key once, client must store it.
             IsSuccess = true,
-            Message = "Tenant created successfully."
+            Message = "Workspace created successfully."
         };
     }
 }

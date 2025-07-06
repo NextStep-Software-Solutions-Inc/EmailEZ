@@ -5,7 +5,7 @@ namespace EmailEZ.Domain.Entities;
 
 public class Email : BaseEntity
 {
-    public Guid TenantId { get; set; } // Explicitly defined TenantId
+    public Guid WorkspaceId { get; set; } // Explicitly defined WorkspaceId
     public Guid? ExternalId { get; set; }
     public Guid EmailConfigurationId { get; set; } 
     public string FromAddress { get; set; } = string.Empty;
@@ -31,7 +31,7 @@ public class Email : BaseEntity
     public int AttemptCount { get; set; } = 0;
 
     // Navigation properties
-    public Tenant Tenant { get; set; } = null!;
+    public Workspace Workspace { get; set; } = null!;
 
     public EmailConfiguration EmailConfiguration { get; set; } = null!; 
     public ICollection<EmailAttachment> Attachments { get; set; } = new List<EmailAttachment>();

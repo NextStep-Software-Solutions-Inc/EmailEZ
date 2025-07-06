@@ -5,6 +5,6 @@ namespace EmailEZ.Application.Features.Emails.Queries.GetEmailById;
 
 public class GetEmailByIdQuery : IRequest<EmailDetailsDto?> // Returns null if not found
 {
-    public Guid TenantId { get; set; }
+    public Guid WorkspaceId { get; set; }
     public Guid EmailId { get; set; }
 }

@@ -17,10 +17,10 @@ public class GetAllEmailConfigurationsQueryHandler : IRequestHandler<GetAllEmail
     {
         var configs = await _context.EmailConfigurations
             .AsNoTracking()
-            .Where(ec => ec.TenantId == request.TenantId) // Crucial: only get configs for the specified tenant
+            .Where(ec => ec.WorkspaceId == request.WorkspaceId) // Crucial: only get configs for the specified workspace
             .Select(ec => new GetAllEmailConfigurationsResponse(
                 ec.Id,
-                ec.TenantId,
+                ec.WorkspaceId,
                 ec.SmtpHost,
                 ec.SmtpPort,
                 ec.UseSsl,

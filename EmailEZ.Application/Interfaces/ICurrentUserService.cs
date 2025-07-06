@@ -7,9 +7,9 @@ public interface ICurrentUserService
 {
     /// <summary>
     /// Gets the unique identifier of the current user or actor.
-    /// This could be a TenantId, AdminUserId, or a system account ID.
+    /// This could be a WorkspaceId, AdminUserId, or a system account ID.
     /// </summary>
     Guid? GetCurrentUserId();
 
-    Guid? GetCurrentTenantId();
+    Guid? GetCurrentWorkspaceId();
 }

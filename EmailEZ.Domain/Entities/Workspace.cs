@@ -2,7 +2,7 @@
 
 namespace EmailEZ.Domain.Entities;
 
-public class Tenant : BaseEntity
+public class Workspace : BaseEntity
 {
     public string Name { get; set; } = string.Empty;
     public string ApiKeyHash { get; set; } = string.Empty;

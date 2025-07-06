@@ -46,8 +46,8 @@ namespace EmailEZ.Client.TestWebApp.Controllers
             // Create the SendEmailRequest object for the EmailEZ.Client
             var sendEmailRequest = new SendEmailRequest
             {
-                // NOTE: Replace these with actual TenantId and EmailConfigurationId as needed by your API
-                TenantId = Guid.Parse("2f20f03a-f516-4b22-95dd-33e4aa83f30f"),
+                // NOTE: Replace these with actual WorkspaceId and EmailConfigurationId as needed by your API
+                WorkspaceId = Guid.Parse("2f20f03a-f516-4b22-95dd-33e4aa83f30f"),
                 EmailConfigurationId = Guid.Parse("81228be6-73b7-4c0f-835b-c198c734a955"),
                 ToEmail = new List<string> { request.ToEmail },
                 Subject = request.Subject,

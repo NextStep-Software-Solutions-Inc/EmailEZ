@@ -20,18 +20,18 @@ public class UpdateEmailConfigurationCommandHandler : IRequestHandler<UpdateEmai
 
     public async Task<UpdateEmailConfigurationResponse> Handle(UpdateEmailConfigurationCommand request, CancellationToken cancellationToken)
     {
-        // 1. Find the email configuration within the specified tenant
+        // 1. Find the email configuration within the specified workspace
         var config = await _context.EmailConfigurations
-            .FirstOrDefaultAsync(ec => ec.Id == request.Id && ec.TenantId == request.TenantId, cancellationToken);
+            .FirstOrDefaultAsync(ec => ec.Id == request.Id && ec.WorkspaceId == request.WorkspaceId, cancellationToken);
 
         if (config == null)
         {
-            return new UpdateEmailConfigurationResponse(false, $"Email configuration with ID '{request.Id}' not found for tenant '{request.TenantId}'.");
+            return new UpdateEmailConfigurationResponse(false, $"Email configuration with ID '{request.Id}' not found for workspace '{request.WorkspaceId}'.");
         }
 
-        // 2. Optional: Check for duplicate host/username for *other* configs of this tenant
+        // 2. Optional: Check for duplicate host/username for *other* configs of this workspace
         var existingConfigWithSameHostAndUsername = await _context.EmailConfigurations
-            .AnyAsync(ec => ec.TenantId == request.TenantId &&
+            .AnyAsync(ec => ec.WorkspaceId == request.WorkspaceId &&
                             ec.SmtpHost == request.SmtpHost &&
                             ec.Username == request.Username &&
                             ec.FromEmail == request.FromEmail && 
@@ -40,7 +40,7 @@ public class UpdateEmailConfigurationCommandHandler : IRequestHandler<UpdateEmai
 
         if (existingConfigWithSameHostAndUsername)
         {
-            return new UpdateEmailConfigurationResponse(false, "Another configuration with this SMTP Host and Username already exists for this tenant.");
+            return new UpdateEmailConfigurationResponse(false, "Another configuration with this SMTP Host and Username already exists for this workspace.");
         }
 
         // 3. Update properties

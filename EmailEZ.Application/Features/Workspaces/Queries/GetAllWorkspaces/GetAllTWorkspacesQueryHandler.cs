@@ -2,24 +2,24 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore; // For ToListAsync, AsNoTracking
 
-namespace EmailEZ.Application.Features.Tenants.Queries.GetAllTenants;
+namespace EmailEZ.Application.Features.Workspaces.Queries.GetAllWorkspaces;
 
-public class GetAllTenantsQueryHandler : IRequestHandler<GetAllTenantsQuery, List<GetAllTenantsResponse>>
+public class GetAllWorkspacesQueryHandler : IRequestHandler<GetAllWorkspacesQuery, List<GetAllWorkspacesResponse>>
 {
     private readonly IApplicationDbContext _context;
     //private readonly IEmailSenderClient _emailSenderClient;
 
-    public GetAllTenantsQueryHandler(IApplicationDbContext context)
+    public GetAllWorkspacesQueryHandler(IApplicationDbContext context)
     {
         _context = context;
         //_emailSenderClient = emailSenderClient;
     }
 
-    public async Task<List<GetAllTenantsResponse>> Handle(GetAllTenantsQuery request, CancellationToken cancellationToken)
+    public async Task<List<GetAllWorkspacesResponse>> Handle(GetAllWorkspacesQuery request, CancellationToken cancellationToken)
     {
-        var tenants = await _context.Tenants
+        var workspaces = await _context.Workspaces
             .AsNoTracking() // Recommended for read operations
-            .Select(t => new GetAllTenantsResponse(
+            .Select(t => new GetAllWorkspacesResponse(
                 t.Id,
                 t.Name,
                 t.Domain,
@@ -28,6 +28,6 @@ public class GetAllTenantsQueryHandler : IRequestHandler<GetAllTenantsQuery, Lis
             ))
             .ToListAsync(cancellationToken);
 
-        return tenants;
+        return workspaces;
     }
 }

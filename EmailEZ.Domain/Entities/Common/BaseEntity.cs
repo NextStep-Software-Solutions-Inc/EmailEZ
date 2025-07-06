@@ -20,7 +20,7 @@ public abstract class BaseEntity
 
     /// <summary>
     /// Gets or sets the identifier of the entity or user who created this record.
-    /// Could be a TenantId, AdminUserId, or a system identifier.
+    /// Could be a WorkspaceId, AdminUserId, or a system identifier.
     /// </summary>
     public Guid? CreatedBy { get; set; }
 
@@ -31,7 +31,7 @@ public abstract class BaseEntity
 
     /// <summary>
     /// Gets or sets the identifier of the entity or user who last updated this record.
-    /// Could be a TenantId, AdminUserId, or a system identifier.
+    /// Could be a WorkspaceId, AdminUserId, or a system identifier.
     /// </summary>
     public Guid? UpdatedBy { get; set; }
 

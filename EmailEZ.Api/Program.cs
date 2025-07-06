@@ -36,7 +36,7 @@ builder.Services.AddSwaggerGen(c =>
         Name = "X-API-KEY",
         Type = SecuritySchemeType.ApiKey,
         In = ParameterLocation.Header,
-        Description = "API Key for tenant authentication"
+        Description = "API Key for workspace authentication"
     });
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
@@ -148,7 +148,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseMiddleware<TenantMiddleware>();
+app.UseMiddleware<WorkspaceMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 

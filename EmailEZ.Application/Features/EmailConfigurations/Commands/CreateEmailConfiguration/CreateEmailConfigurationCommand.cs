@@ -3,7 +3,7 @@
 namespace EmailEZ.Application.Features.EmailConfigurations.Commands.CreateEmailConfiguration;
 
 public record CreateEmailConfigurationCommand(
-    Guid TenantId,
+    Guid WorkspaceId,
     string SmtpHost,
     int SmtpPort,
     bool UseSsl,

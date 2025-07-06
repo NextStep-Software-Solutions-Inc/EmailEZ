@@ -2,7 +2,7 @@
 
 public class SendEmailRequest
 {
-    public Guid TenantId { get; set; }
+    public Guid WorkspaceId { get; set; }
     public Guid EmailConfigurationId { get; set; }
     public List<string> ToEmail { get; set; }
     public string Subject { get; set; }

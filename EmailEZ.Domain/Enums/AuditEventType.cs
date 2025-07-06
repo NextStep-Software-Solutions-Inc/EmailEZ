@@ -6,24 +6,24 @@
 public enum AuditEventType
 {
     /// <summary>
-    /// A new tenant record was created.
+    /// A new workspace record was created.
     /// </summary>
-    TenantCreated = 1,
+    WorkspaceCreated = 1,
 
     /// <summary>
-    /// An existing tenant's details were updated.
+    /// An existing workspace's details were updated.
     /// </summary>
-    TenantUpdated = 2,
+    WorkspaceUpdated = 2,
 
     /// <summary>
-    /// A tenant's API key was regenerated.
+    /// A workspace's API key was regenerated.
     /// </summary>
     ApiKeyRegenerated = 3,
 
     /// <summary>
-    /// A tenant was activated or deactivated.
+    /// A workspace was activated or deactivated.
     /// </summary>
-    TenantStatusChanged = 4,
+    WorkspaceStatusChanged = 4,
 
     /// <summary>
     /// An email send attempt event (could be logged by the system).

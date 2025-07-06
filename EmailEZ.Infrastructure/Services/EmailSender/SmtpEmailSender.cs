@@ -29,7 +29,7 @@ public class SmtpEmailSender : IEmailSender
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to decrypt password for email configuration '{ConfigId}' for tenant '{TenantId}'. Email not sent.", config.Id, config.TenantId);
+            _logger.LogError(ex, "Failed to decrypt password for email configuration '{ConfigId}' for workspace '{WorkspaceId}'. Email not sent.", config.Id, config.WorkspaceId);
             return new EmailSendResult
             {
                 Success = false,

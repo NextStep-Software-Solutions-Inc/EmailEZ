@@ -1,6 +1,6 @@
-﻿using EmailEZ.Application.Interfaces; // For IApplicationDbContext, ICurrentUserService, ITenantContext
+﻿using EmailEZ.Application.Interfaces; // For IApplicationDbContext, ICurrentUserService, IWorkspaceContext
 using EmailEZ.Infrastructure.Persistence.DbContexts;
-using EmailEZ.Infrastructure.Services.Security; // For CurrentUserService, TenantContextService
+using EmailEZ.Infrastructure.Services.Security; // For CurrentUserService, WorkspaceContextService
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,9 +29,9 @@ public static class DependencyInjection
         // Register Current User Service
         services.AddScoped<ICurrentUserService, CurrentUserService>();
 
-        // Register Tenant Context Service (often Scoped or Singleton, depending on its use case outside of requests)
-        // For per-request tenant context, Scoped is appropriate for API requests.
-        services.AddScoped<ITenantContext, TenantContextService>();
+        // Register Workspace Context Service (often Scoped or Singleton, depending on its use case outside of requests)
+        // For per-request workspace context, Scoped is appropriate for API requests.
+        services.AddScoped<IWorkspaceContext, WorkspaceContextService>();
 
         // Register Password Hasher and Encryptor (Singleton as they are stateless)
         services.AddSingleton<IApiKeyHasher, ApiKeyHasher>();

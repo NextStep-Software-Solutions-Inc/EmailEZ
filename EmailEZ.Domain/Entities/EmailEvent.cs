@@ -6,7 +6,7 @@ namespace EmailEZ.Domain.Entities;
 public class EmailEvent : BaseEntity
 {
     public Guid EmailId { get; set; }
-    public Guid TenantId { get; set; } // Explicitly defined TenantId
+    public Guid WorkspaceId { get; set; } // Explicitly defined WorkspaceId
 
     public EmailEventType EventType { get; set; }
     // We'll use BaseEntity.CreatedAt for the event timestamp.

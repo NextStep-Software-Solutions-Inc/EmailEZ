@@ -1,11 +1,11 @@
 ﻿using MediatR; // For IRequest<TResponse>
 
-namespace EmailEZ.Application.Features.Tenants.Commands.CreateTenant;
+namespace EmailEZ.Application.Features.Workspaces.Commands.CreateWorkspace;
 
 /// <summary>
-/// Represents a command to create a new Tenant.
+/// Represents a command to create a new Workspace.
 /// </summary>
-public class CreateTenantCommand : IRequest<CreateTenantResponse>
+public class CreateWorkspaceCommand : IRequest<CreateWorkspaceResponse>
 {
     public string Name { get; set; } = string.Empty;
     public string Domain { get; set; } = string.Empty;
@@ -13,11 +13,11 @@ public class CreateTenantCommand : IRequest<CreateTenantResponse>
 }
 
 /// <summary>
-/// Represents the response returned after creating a Tenant.
+/// Represents the response returned after creating a Workspace.
 /// </summary>
-public class CreateTenantResponse
+public class CreateWorkspaceResponse
 {
-    public Guid TenantId { get; set; }
+    public Guid WorkspaceId { get; set; }
     public string Name { get; set; } = string.Empty;
     public string Domain { get; set; } = string.Empty;
     public string ApiKey { get; set; } = string.Empty; // The newly generated plaintext API key

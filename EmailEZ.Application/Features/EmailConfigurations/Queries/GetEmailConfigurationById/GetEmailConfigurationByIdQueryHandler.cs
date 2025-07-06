@@ -17,7 +17,7 @@ public class GetEmailConfigurationByIdQueryHandler : IRequestHandler<GetEmailCon
     {
         var config = await _context.EmailConfigurations
             .AsNoTracking()
-            .Where(ec => ec.Id == request.Id && ec.TenantId == request.TenantId) // Crucial: ensure it belongs to the specified tenant
+            .Where(ec => ec.Id == request.Id && ec.WorkspaceId == request.WorkspaceId) // Crucial: ensure it belongs to the specified workspace
             .FirstOrDefaultAsync(cancellationToken);
 
         if (config == null)
@@ -27,7 +27,7 @@ public class GetEmailConfigurationByIdQueryHandler : IRequestHandler<GetEmailCon
 
         return new GetEmailConfigurationByIdResponse(
             config.Id,
-            config.TenantId,
+            config.WorkspaceId,
             config.SmtpHost,
             config.SmtpPort,
             config.UseSsl,

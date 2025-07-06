@@ -1,11 +1,11 @@
 ﻿using EmailEZ.Application.Features.Emails.Commands.SendEmail;
-using EmailEZ.Application.Features.Tenants.Commands.CreateTenant;
+using EmailEZ.Application.Features.Workspaces.Commands.CreateWorkspace;
 using FluentValidation;
 
-namespace EmailEZ.Application.Features.Tenants.Valicators;
+namespace EmailEZ.Application.Features.Workspaces.Valicators;
 
 /// <summary>
-/// Validator for the CreateTenantCommand.
+/// Validator for the CreateWorkspaceCommand.
 /// </summary>
 public class SendEmailCommandValidator : AbstractValidator<SendEmailCommand>
 {
@@ -26,9 +26,9 @@ public class SendEmailCommandValidator : AbstractValidator<SendEmailCommand>
             .MaximumLength(5000).WithMessage("Email body must not exceed 5000 characters.");
         RuleFor(x => x.FromDisplayName)
             .MaximumLength(255).WithMessage("From display name must not exceed 255 characters.");
-        RuleFor(x => x.TenantId)
-            .NotEmpty().WithMessage("Tenant ID is required.")
-            .Must(tid => tid != Guid.Empty).WithMessage("Tenant ID cannot be an empty GUID.");
+        RuleFor(x => x.WorkspaceId)
+            .NotEmpty().WithMessage("Workspace ID is required.")
+            .Must(tid => tid != Guid.Empty).WithMessage("Workspace ID cannot be an empty GUID.");
         RuleFor(x => x.EmailConfigurationId)
             .NotEmpty().WithMessage("Email configuration ID is required.")
             .Must(ecid => ecid != Guid.Empty).WithMessage("Email configuration ID cannot be an empty GUID.");

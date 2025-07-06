@@ -8,7 +8,7 @@
 ### 🔑 Key Features
 
 - **Simplified Email Sending** – Clear and intuitive API for constructing and sending email requests.
-- **Comprehensive Payload Support** – Supports all EmailEZ payload fields: `To`, `CC`, `BCC`, `Subject`, `Body`, `FromDisplayName`, `TenantId`, `EmailConfigurationId`, etc.
+- **Comprehensive Payload Support** – Supports all EmailEZ payload fields: `To`, `CC`, `BCC`, `Subject`, `Body`, `FromDisplayName`, `WorkspaceId`, `EmailConfigurationId`, etc.
 - **API Key Authentication** – Secure communication with automatic inclusion of API keys in headers.
 - **Robust Error Handling** – Returns a `(bool Success, string ErrorMessage)` tuple to simplify error diagnostics.
 - **Asynchronous Operations** – Fully async for scalability and responsiveness.
@@ -118,7 +118,7 @@ public class EmailController : ControllerBase
     {
         var request = new SendEmailRequest
         {
-            TenantId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"), // TODO: Replace
+            WorkspaceId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"), // TODO: Replace
             EmailConfigurationId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"), // TODO: Replace
             ToEmail = new List<string> { dto.ToEmail },
             Subject = dto.Subject,

@@ -16,13 +16,13 @@ namespace EmailEZ.Api.Endpoints;
 
 public class EmailEndpoints : CarterModule
 {
-    private const string EmailConfigsBaseRoute = "/api/v1/tenants/{tenantId:guid}/emails";
+    private const string EmailConfigsBaseRoute = "/api/v1/workspaces/{workspaceId:guid}/emails";
 
     public EmailEndpoints() : base() { }
 
     public override void AddRoutes(IEndpointRouteBuilder app)
     {
-        // Define the base group for email-related endpoints under a tenant
+        // Define the base group for email-related endpoints under a workspace
         // This makes it easier to apply common configurations like tags or authorization if needed
         var group = app.MapGroup(EmailConfigsBaseRoute)
                             .WithTags("Emails")
@@ -66,7 +66,7 @@ public class EmailEndpoints : CarterModule
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "An error occurred while enqueuing email send for Tenant ID: {TenantId}", command.TenantId);
+                logger.LogError(ex, "An error occurred while enqueuing email send for Workspace ID: {WorkspaceId}", command.WorkspaceId);
                 return Results.Problem("An unexpected error occurred while processing your request.", statusCode: StatusCodes.Status500InternalServerError);
             }
         })
@@ -79,10 +79,10 @@ public class EmailEndpoints : CarterModule
         .AddEndpointFilter<ApiKeyAuthenticationFilter>()
         .AllowAnonymous();
 
-        // POST /api/v1/tenants/{tenantId}/send-email
+        // POST /api/v1/workspaces/{workspaceId}/send-email
         group.MapPost("/send-email",
         async (
-            Guid tenantId,
+            Guid workspaceId,
             [FromBody] SendEmailCommand command, // The command contains all email details
             IMediator mediator,
             ILogger<EmailConfigurationEndpoints> logger
@@ -90,10 +90,10 @@ public class EmailEndpoints : CarterModule
         {
             try
             {
-                // Ensure the tenantId from the route matches the command's tenantId
-                if (tenantId != command.TenantId)
+                // Ensure the workspaceId from the route matches the command's workspaceId
+                if (workspaceId != command.WorkspaceId)
                 {
-                    return Results.BadRequest("Tenant ID in URL path must match Tenant ID in request body.");
+                    return Results.BadRequest("Workspace ID in URL path must match Workspace ID in request body.");
                 }
 
                 var response = await mediator.Send(command);
@@ -123,7 +123,7 @@ public class EmailEndpoints : CarterModule
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "An error occurred while enqueuing email send for Tenant ID: {TenantId}", tenantId);
+                logger.LogError(ex, "An error occurred while enqueuing email send for Workspace ID: {WorkspaceId}", workspaceId);
                 return Results.Problem("An unexpected error occurred while processing your request.", statusCode: StatusCodes.Status500InternalServerError);
             }
         })
@@ -133,9 +133,9 @@ public class EmailEndpoints : CarterModule
         .ProducesValidationProblem()
         .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-        // Map the GET /api/v1/tenants/{tenantId}/emails endpoint
+        // Map the GET /api/v1/workspaces/{workspaceId}/emails endpoint
         group.MapGet("/", async (
-            Guid tenantId,
+            Guid workspaceId,
             IMediator mediator,
             [Required][FromQuery] int pageNumber = 1, // Default to first page
             [FromQuery] int pageSize = 10,
@@ -162,7 +162,7 @@ public class EmailEndpoints : CarterModule
             }
             var query = new GetAllEmailsQuery
             {
-                TenantId = tenantId,
+                WorkspaceId = workspaceId,
                 PageNumber = pageNumber,
                 PageSize = pageSize,
                 SortOrder = sortOder,
@@ -175,23 +175,23 @@ public class EmailEndpoints : CarterModule
 
             return Results.Ok(await mediator.Send(query));
         })
-        .WithName("GetEmailsForTenant")
+        .WithName("GetEmailsForWorkspace")
         .Produces<PaginatedList<EmailDto>>(StatusCodes.Status200OK);
         //};
 
 
-        // GET /api/v1/tenants/{tenantId}/emails/{id} - Retrieve a single email by ID
+        // GET /api/v1/workspaces/{workspaceId}/emails/{id} - Retrieve a single email by ID
         group.MapGet("/{id:guid}", async (
-            [FromRoute] Guid tenantId,
+            [FromRoute] Guid workspaceId,
             [FromRoute] Guid id,
             IMediator mediator) =>
         {
-            var query = new GetEmailByIdQuery { TenantId = tenantId, EmailId = id };
+            var query = new GetEmailByIdQuery { WorkspaceId = workspaceId, EmailId = id };
             var result = await mediator.Send(query);
 
             return result != null ? Results.Ok(result) : Results.NotFound();
         })
-        .WithName("GetEmailByIdForTenant")
+        .WithName("GetEmailByIdForWorkspace")
         .Produces<EmailDetailsDto>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status404NotFound);
     }

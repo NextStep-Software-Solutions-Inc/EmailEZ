@@ -19,18 +19,18 @@ public class GetEmailByIdQueryHandler : IRequestHandler<GetEmailByIdQuery, Email
     {
         var email = await _context.Emails
             .AsNoTracking() // For read-only queries, AsNoTracking improves performance
-            .FirstOrDefaultAsync(e => e.Id == request.EmailId && e.TenantId == request.TenantId, cancellationToken);
+            .FirstOrDefaultAsync(e => e.Id == request.EmailId && e.WorkspaceId == request.WorkspaceId, cancellationToken);
 
         if (email == null)
         {
-            return null; // Email not found for the given ID and TenantId
+            return null; // Email not found for the given ID and WorkspaceId
         }
 
         // Project the Email entity to EmailDetailsDto
         var emailDetailsDto = new EmailDetailsDto
         {
             Id = email.Id,
-            TenantId = email.TenantId,
+            WorkspaceId = email.WorkspaceId,
             EmailConfigurationId = email.EmailConfigurationId,
             FromAddress = email.FromAddress,
             ToAddresses = email.ToAddresses,

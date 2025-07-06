@@ -1,4 +1,4 @@
-﻿using EmailEZ.Application.Interfaces; // For IApiKeyHasher, IApplicationDbContext, ITenantContext
+﻿using EmailEZ.Application.Interfaces; // For IApiKeyHasher, IApplicationDbContext, IWorkspaceContext
 using Microsoft.EntityFrameworkCore;
 
 namespace EmailEZ.Api.Filters;
@@ -23,10 +23,10 @@ public class ApiKeyAuthenticationFilter : IEndpointFilter
         using var scope = httpContext.RequestServices.CreateScope();
         var apiKeyHasher = scope.ServiceProvider.GetRequiredService<IApiKeyHasher>();
         var dbContext = scope.ServiceProvider.GetRequiredService<IApplicationDbContext>();
-        var tenantContext = scope.ServiceProvider.GetRequiredService<ITenantContext>();
+        var workspaceContext = scope.ServiceProvider.GetRequiredService<IWorkspaceContext>();
 
-        // 2. Query the database for potential tenants and perform in-memory verification.
-        var tenantsFromDb = await dbContext.Tenants
+        // 2. Query the database for potential workspaces and perform in-memory verification.
+        var workspacesFromDb = await dbContext.Workspaces
                                           .Where(t => t.IsActive /* && !t.IsDeleted */) // Add your IsDeleted check if applicable
                                           .Select(t => new // Project to an anonymous type for efficiency
                                           {
@@ -38,25 +38,25 @@ public class ApiKeyAuthenticationFilter : IEndpointFilter
                                           })
                                           .ToListAsync();
 
-        // 3. Iterate through the in-memory list to find a matching tenant.
-        var matchingTenantData = tenantsFromDb.FirstOrDefault(t =>
+        // 3. Iterate through the in-memory list to find a matching workspace.
+        var matchingWorkspaceData = workspacesFromDb.FirstOrDefault(t =>
             !string.IsNullOrEmpty(t.ApiKeyHash) && apiKeyHasher.VerifyApiKey(extractedApiKey.ToString(), t.ApiKeyHash)
         );
 
-        if (matchingTenantData == null)
+        if (matchingWorkspaceData == null)
         {
-            // API Key is invalid or no matching tenant found
+            // API Key is invalid or no matching workspace found
             return Results.Unauthorized();
         }
 
-        // 4. Populate ITenantContext if a tenant is found
-        tenantContext.SetTenant(matchingTenantData.Id, matchingTenantData.Domain);
+        // 4. Populate IWorkspaceContext if a workspace is found
+        workspaceContext.SetWorkspace(matchingWorkspaceData.Id, matchingWorkspaceData.Domain);
 
-        // Optional: Update ApiKeyLastUsedAt timestamp for the tenant.
-        var fullTenantEntity = await dbContext.Tenants.FindAsync(matchingTenantData.Id);
-        if (fullTenantEntity != null)
+        // Optional: Update ApiKeyLastUsedAt timestamp for the workspace.
+        var fullWorkspaceEntity = await dbContext.Workspaces.FindAsync(matchingWorkspaceData.Id);
+        if (fullWorkspaceEntity != null)
         {
-            fullTenantEntity.ApiKeyLastUsedAt = DateTimeOffset.UtcNow;
+            fullWorkspaceEntity.ApiKeyLastUsedAt = DateTimeOffset.UtcNow;
             await dbContext.SaveChangesAsync();
         }
 

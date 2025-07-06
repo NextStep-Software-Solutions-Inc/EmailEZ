@@ -4,38 +4,38 @@ namespace EmailEZ.Infrastructure.Services.Security;
 
 public class CurrentUserService : ICurrentUserService
 {
-    private readonly ITenantContext _tenantContext; // Inject the tenant context
+    private readonly IWorkspaceContext _workspaceContext; // Inject the workspace context
 
-    public CurrentUserService(ITenantContext tenantContext)
+    public CurrentUserService(IWorkspaceContext workspaceContext)
     {
-        _tenantContext = tenantContext;
+        _workspaceContext = workspaceContext;
     }
 
     public Guid? GetCurrentUserId()
     {
-        // If a tenant is set via API Key middleware, return the TenantId
-        if (_tenantContext.IsTenantSet)
+        // If a workspace is set via API Key middleware, return the WorkspaceId
+        if (_workspaceContext.IsWorkspaceSet)
         {
-            return _tenantContext.TenantId;
+            return _workspaceContext.WorkspaceId;
         }
 
         // For system-level operations (e.g., Hangfire jobs not tied to a specific API call)
         // you might return a predefined system GUID, or null.
-        // For now, let's return null if no tenant context is available.
+        // For now, let's return null if no workspace context is available.
         return null;
     }
 
-    public Guid? GetCurrentTenantId()
+    public Guid? GetCurrentWorkspaceId()
     {
-        // If a tenant is set via API Key middleware, return the TenantId
-        if (_tenantContext.IsTenantSet)
+        // If a workspace is set via API Key middleware, return the WorkspaceId
+        if (_workspaceContext.IsWorkspaceSet)
         {
-            return _tenantContext.TenantId;
+            return _workspaceContext.WorkspaceId;
         }
 
         // For system-level operations (e.g., Hangfire jobs not tied to a specific API call)
         // you might return a predefined system GUID, or null.
-        // For now, let's return null if no tenant context is available.
+        // For now, let's return null if no workspace context is available.
         return null;
     }
 }

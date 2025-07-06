@@ -4,7 +4,7 @@ namespace EmailEZ.Application.Features.EmailConfigurations.Commands.UpdateEmailC
 
 public record UpdateEmailConfigurationCommand(
     Guid Id, // The ID of the configuration to update
-    Guid TenantId, // To ensure the config belongs to the correct tenant
+    Guid WorkspaceId, // To ensure the config belongs to the correct workspace
     string SmtpHost,
     int SmtpPort,
     bool UseSsl,

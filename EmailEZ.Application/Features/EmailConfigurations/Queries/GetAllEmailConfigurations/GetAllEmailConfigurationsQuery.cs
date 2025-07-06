@@ -2,11 +2,11 @@
 
 namespace EmailEZ.Application.Features.EmailConfigurations.Queries.GetAllEmailConfigurations;
 
-public record GetAllEmailConfigurationsQuery(Guid TenantId) : IRequest<List<GetAllEmailConfigurationsResponse>>;
+public record GetAllEmailConfigurationsQuery(Guid WorkspaceId) : IRequest<List<GetAllEmailConfigurationsResponse>>;
 
 public record GetAllEmailConfigurationsResponse(
     Guid EmailConfigurationId,
-    Guid TenantId,
+    Guid WorkspaceId,
     string SmtpHost,
     int SmtpPort,
     bool UseSsl,

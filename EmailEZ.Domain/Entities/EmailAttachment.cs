@@ -5,7 +5,7 @@ namespace EmailEZ.Domain.Entities;
 public class EmailAttachment : BaseEntity
 {
     public Guid EmailId { get; set; }
-    public Guid TenantId { get; set; } // Explicitly defined TenantId
+    public Guid WorkspaceId { get; set; } // Explicitly defined WorkspaceId
 
     public string FileName { get; set; } = string.Empty;
     public string ContentType { get; set; } = string.Empty;

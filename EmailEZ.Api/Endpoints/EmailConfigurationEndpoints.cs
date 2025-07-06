@@ -15,12 +15,12 @@ namespace EmailEZ.Api.Endpoints;
 /// </summary>
 public class EmailConfigurationEndpoints : CarterModule
 {
-    // Define the base route string for email configurations nested under tenants
-    private const string EmailConfigsBaseRoute = "/api/v1/tenants/{tenantId:guid}/email-configurations";
+    // Define the base route string for email configurations nested under workspaces
+    private const string EmailConfigsBaseRoute = "/api/v1/workspaces/{workspaceId:guid}/email-configurations";
 
     public EmailConfigurationEndpoints() : base()
     {
-        // No base route in constructor as we're using MapGroup for dynamic tenantId
+        // No base route in constructor as we're using MapGroup for dynamic workspaceId
     }
 
     public override void AddRoutes(IEndpointRouteBuilder app)
@@ -30,10 +30,10 @@ public class EmailConfigurationEndpoints : CarterModule
                         .WithOpenApi()
                         .RequireAuthorization();
 
-        // POST /api/v1/tenants/{tenantId}/email-configurations
+        // POST /api/v1/workspaces/{workspaceId}/email-configurations
         group.MapPost("/",
         async (
-            Guid tenantId, // From the route
+            Guid workspaceId, // From the route
             [FromBody] CreateEmailConfigurationCommand command, // Request body
             IMediator mediator,
             ILogger<EmailConfigurationEndpoints> logger
@@ -41,11 +41,11 @@ public class EmailConfigurationEndpoints : CarterModule
         {
             try
             {
-                // Ensure the tenantId from the route matches the command's tenantId if it's there
+                // Ensure the workspaceId from the route matches the command's workspaceId if it's there
                 // (Though for creation, it's often preferred to just take from route)
-                if (tenantId != command.TenantId)
+                if (workspaceId != command.WorkspaceId)
                 {
-                    return Results.BadRequest("Tenant ID in URL path must match Tenant ID in request body.");
+                    return Results.BadRequest("Workspace ID in URL path must match Workspace ID in request body.");
                 }
 
                 var response = await mediator.Send(command);
@@ -53,7 +53,7 @@ public class EmailConfigurationEndpoints : CarterModule
                 if (response.Success)
                 {
                     // Return 201 Created with the location of the new resource
-                    return Results.Created($"{EmailConfigsBaseRoute.Replace("{tenantId:guid}", tenantId.ToString())}/{response.EmailConfigurationId}", response);
+                    return Results.Created($"{EmailConfigsBaseRoute.Replace("{workspaceId:guid}", workspaceId.ToString())}/{response.EmailConfigurationId}", response);
                 }
                 else
                 {
@@ -67,7 +67,7 @@ public class EmailConfigurationEndpoints : CarterModule
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "An error occurred while creating an email configuration for Tenant ID: {TenantId}", tenantId);
+                logger.LogError(ex, "An error occurred while creating an email configuration for Workspace ID: {WorkspaceId}", workspaceId);
                 return Results.Problem("An unexpected error occurred.", statusCode: StatusCodes.Status500InternalServerError);
             }
         })
@@ -77,25 +77,25 @@ public class EmailConfigurationEndpoints : CarterModule
         .ProducesValidationProblem()
         .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-        // GET /api/v1/tenants/{tenantId}/email-configurations/{id}
+        // GET /api/v1/workspaces/{workspaceId}/email-configurations/{id}
         group.MapGet("/{id:guid}",
-        async (Guid tenantId, Guid id, IMediator mediator, ILogger<EmailConfigurationEndpoints> logger) =>
+        async (Guid workspaceId, Guid id, IMediator mediator, ILogger<EmailConfigurationEndpoints> logger) =>
         {
             try
             {
-                var query = new GetEmailConfigurationByIdQuery(tenantId, id);
+                var query = new GetEmailConfigurationByIdQuery(workspaceId, id);
                 var response = await mediator.Send(query);
 
                 if (response == null)
                 {
-                    return Results.NotFound($"Email configuration with ID '{id}' not found for tenant '{tenantId}'.");
+                    return Results.NotFound($"Email configuration with ID '{id}' not found for workspace '{workspaceId}'.");
                 }
 
                 return Results.Ok(response);
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "An error occurred while retrieving email configuration ID: {ConfigId} for Tenant ID: {TenantId}", id, tenantId);
+                logger.LogError(ex, "An error occurred while retrieving email configuration ID: {ConfigId} for Workspace ID: {WorkspaceId}", id, workspaceId);
                 return Results.Problem("An unexpected error occurred.", statusCode: StatusCodes.Status500InternalServerError);
             }
         })
@@ -105,20 +105,20 @@ public class EmailConfigurationEndpoints : CarterModule
         .ProducesProblem(StatusCodes.Status500InternalServerError);
 
 
-        // GET /api/v1/tenants/{tenantId}/email-configurations
+        // GET /api/v1/workspaces/{workspaceId}/email-configurations
         group.MapGet("/",
-        async (Guid tenantId, IMediator mediator, ILogger<EmailConfigurationEndpoints> logger) =>
+        async (Guid workspaceId, IMediator mediator, ILogger<EmailConfigurationEndpoints> logger) =>
         {
             try
             {
-                var query = new GetAllEmailConfigurationsQuery(tenantId);
+                var query = new GetAllEmailConfigurationsQuery(workspaceId);
                 var response = await mediator.Send(query);
 
                 return Results.Ok(response); // Will return an empty list if no configs exist
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "An error occurred while retrieving all email configurations for Tenant ID: {TenantId}", tenantId);
+                logger.LogError(ex, "An error occurred while retrieving all email configurations for Workspace ID: {WorkspaceId}", workspaceId);
                 return Results.Problem("An unexpected error occurred.", statusCode: StatusCodes.Status500InternalServerError);
             }
         })
@@ -128,10 +128,10 @@ public class EmailConfigurationEndpoints : CarterModule
 
 
 
-        // PUT /api/v1/tenants/{tenantId}/email-configurations/{id}
+        // PUT /api/v1/workspaces/{workspaceId}/email-configurations/{id}
         group.MapPut("/{id:guid}",
         async (
-            Guid tenantId,
+            Guid workspaceId,
             Guid id, // From the route
             [FromBody] UpdateEmailConfigurationCommand command, // Request body
             IMediator mediator,
@@ -141,9 +141,9 @@ public class EmailConfigurationEndpoints : CarterModule
             try
             {
                 // Ensure the ID from the route matches the ID in the command body
-                if (id != command.Id || tenantId != command.TenantId)
+                if (id != command.Id || workspaceId != command.WorkspaceId)
                 {
-                    return Results.BadRequest("ID or Tenant ID in URL path must match corresponding IDs in request body.");
+                    return Results.BadRequest("ID or Workspace ID in URL path must match corresponding IDs in request body.");
                 }
 
                 var response = await mediator.Send(command);
@@ -169,7 +169,7 @@ public class EmailConfigurationEndpoints : CarterModule
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "An error occurred while updating email configuration ID: {ConfigId} for Tenant ID: {TenantId}", id, tenantId);
+                logger.LogError(ex, "An error occurred while updating email configuration ID: {ConfigId} for Workspace ID: {WorkspaceId}", id, workspaceId);
                 return Results.Problem("An unexpected error occurred.", statusCode: StatusCodes.Status500InternalServerError);
             }
         })
@@ -180,10 +180,10 @@ public class EmailConfigurationEndpoints : CarterModule
         .ProducesValidationProblem()
         .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-        // DELETE /api/v1/tenants/{tenantId}/email-configurations/{id}
+        // DELETE /api/v1/workspaces/{workspaceId}/email-configurations/{id}
         group.MapDelete("/{id:guid}",
         async (
-            Guid tenantId,
+            Guid workspaceId,
             Guid id, // From the route
             IMediator mediator,
             ILogger<EmailConfigurationEndpoints> logger
@@ -191,7 +191,7 @@ public class EmailConfigurationEndpoints : CarterModule
         {
             try
             {
-                var command = new DeleteEmailConfigurationCommand(tenantId, id);
+                var command = new DeleteEmailConfigurationCommand(workspaceId, id);
                 var response = await mediator.Send(command);
 
                 if (response.Success)
@@ -210,7 +210,7 @@ public class EmailConfigurationEndpoints : CarterModule
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "An error occurred while deleting email configuration ID: {ConfigId} for Tenant ID: {TenantId}", id, tenantId);
+                logger.LogError(ex, "An error occurred while deleting email configuration ID: {ConfigId} for Workspace ID: {WorkspaceId}", id, workspaceId);
                 return Results.Problem("An unexpected error occurred.", statusCode: StatusCodes.Status500InternalServerError);
             }
         })

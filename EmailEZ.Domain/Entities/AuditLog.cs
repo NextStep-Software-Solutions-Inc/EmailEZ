@@ -5,13 +5,13 @@ namespace EmailEZ.Domain.Entities;
 
 public class AuditLog : BaseEntity
 {
-    public Guid? TenantId { get; set; } // Explicitly defined TenantId (nullable here)
+    public Guid? WorkspaceId { get; set; } // Explicitly defined WorkspaceId (nullable here)
 
     public AuditEventType EventType { get; set; }
     // We'll use BaseEntity.CreatedAt for the audit timestamp.
     public string PerformedBy { get; set; } = string.Empty;
     public string? Details { get; set; }
 
-    // Navigation property (Optional, because TenantId is nullable)
-    public Tenant? Tenant { get; set; }
+    // Navigation property (Optional, because WorkspaceId is nullable)
+    public Workspace? Workspace { get; set; }
 }

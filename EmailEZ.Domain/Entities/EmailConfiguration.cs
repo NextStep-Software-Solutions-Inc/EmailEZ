@@ -7,9 +7,9 @@ namespace EmailEZ.Domain.Entities;
 
 public class EmailConfiguration : BaseEntity // Inherit from your base entity class
 {
-    // Foreign key to link to the Tenant
-    public Guid TenantId { get; set; }
-    public Tenant Tenant { get; set; } = null!;
+    // Foreign key to link to the Workspace
+    public Guid WorkspaceId { get; set; }
+    public Workspace Workspace { get; set; } = null!;
 
     // SMTP Server Details
     public string SmtpHost { get; set; } = string.Empty;
