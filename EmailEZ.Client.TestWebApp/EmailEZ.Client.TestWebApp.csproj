@@ -4,7 +4,6 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-	<ExcludeFromBuild>true</ExcludeFromBuild>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,15 +12,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EmailEZ.Client\EmailEZ.Client.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Update="appsettings.Development.json">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Content>
-    <Content Update="appsettings.json">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
 
 </Project>
