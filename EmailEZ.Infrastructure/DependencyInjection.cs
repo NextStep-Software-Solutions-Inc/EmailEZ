@@ -62,7 +62,7 @@ public static class DependencyInjection
 
         // Read encryption settings from configuration
         var encryptionKey = configuration["EncryptionSettings:Key"];
-
+        
         // Ensure encryptionKey and encryptionIV are not null or empty
         if (string.IsNullOrWhiteSpace(encryptionKey))
         {
