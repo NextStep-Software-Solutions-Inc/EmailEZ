@@ -1,7 +1,5 @@
-﻿using EmailEZ.Application.Interfaces; // For IApplicationDbContext, IApiKeyHasher, ISmtpPasswordEncryptor
-using EmailEZ.Domain.Entities;
+﻿using EmailEZ.Application.Interfaces;
 using MediatR;
-using Microsoft.EntityFrameworkCore; // For .AnyAsync(), .FirstOrDefaultAsync() for domain uniqueness checks
 
 namespace EmailEZ.Application.Features.Workspaces.Commands.CreateWorkspace;
 
@@ -10,65 +8,50 @@ namespace EmailEZ.Application.Features.Workspaces.Commands.CreateWorkspace;
 /// </summary>
 public class CreateWorkspaceCommandHandler : IRequestHandler<CreateWorkspaceCommand, CreateWorkspaceResponse>
 {
-    private readonly IApplicationDbContext _context;
-    private readonly IApiKeyHasher _apiKeyHasher;
+    private readonly IWorkspaceManagementService _workspaceManagementService;
+    private readonly ICurrentUserService _currentUserService;
 
     public CreateWorkspaceCommandHandler(
-        IApplicationDbContext context,
-        IApiKeyHasher apiKeyHasher,
-        IEncryptionService smtpPasswordEncryptor,
+        IWorkspaceManagementService workspaceManagementService,
         ICurrentUserService currentUserService)
     {
-        _context = context;
-        _apiKeyHasher = apiKeyHasher;
+        _workspaceManagementService = workspaceManagementService;
+        _currentUserService = currentUserService;
     }
 
     public async Task<CreateWorkspaceResponse> Handle(CreateWorkspaceCommand request, CancellationToken cancellationToken)
     {
-        // 1. Business Rule: Ensure tenant name is unique
-        var existingWorkspaceWithName = await _context.Workspaces
-            .IgnoreQueryFilters() // Ignore IsDeleted filter to check against all existing tenants
-            .FirstOrDefaultAsync(t => t.Name == request.Name, cancellationToken);
-        if (existingWorkspaceWithName != null)
+        try
         {
-            return new CreateWorkspaceResponse { IsSuccess = false, Message = $"Workspace with name '{request.Name}' already exists." };
+            var userId = _currentUserService.GetCurrentUserId();
+            if (string.IsNullOrEmpty(userId))
+            {
+                return new CreateWorkspaceResponse { IsSuccess = false, Message = "User not authenticated." };
+            }
+
+            var result = await _workspaceManagementService.CreateWorkspaceWithOwnerAsync(
+                request.Name, 
+                request.Domain, 
+                userId, 
+                cancellationToken);
+
+            return new CreateWorkspaceResponse
+            {
+                WorkspaceId = result.Workspace.Id,
+                Name = result.Workspace.Name,
+                Domain = result.Workspace.Domain,
+                ApiKey = result.PlaintextApiKey,
+                IsSuccess = true,
+                Message = "Workspace created successfully."
+            };
         }
-
-        // 2. Business Rule: Ensure tenant domain is unique
-        var existingWorkspaceWithDomain = await _context.Workspaces
-            .IgnoreQueryFilters()
-            .FirstOrDefaultAsync(t => t.Domain == request.Domain, cancellationToken);
-        if (existingWorkspaceWithDomain != null)
+        catch (InvalidOperationException ex)
         {
-            return new CreateWorkspaceResponse { IsSuccess = false, Message = $"Workspace with domain '{request.Domain}' already exists." };
+            return new CreateWorkspaceResponse { IsSuccess = false, Message = ex.Message };
         }
-
-        // 3. Generate a new API Key for the tenant
-        var newPlaintextApiKey = Guid.NewGuid().ToString("N"); // N format for no hyphens
-        var hashedApiKey = _apiKeyHasher.HashApiKey(newPlaintextApiKey);
-
-        // 5. Create the new Workspace entity
-        var tenant = new Workspace
+        catch (Exception)
         {
-            Name = request.Name,
-            ApiKeyHash = hashedApiKey,
-            Domain = request.Domain,
-            IsActive = true,
-        };
-
-        // 6. Add to DbContext and save
-        _context.Workspaces.Add(tenant);
-        await _context.SaveChangesAsync(cancellationToken);
-
-        // 7. Return the response, including the plaintext API Key (which is only shown upon creation)
-        return new CreateWorkspaceResponse
-        {
-            WorkspaceId = tenant.Id,
-            Name = tenant.Name,
-            Domain = tenant.Domain,
-            ApiKey = newPlaintextApiKey, // Crucial: return the plaintext key once, client must store it.
-            IsSuccess = true,
-            Message = "Workspace created successfully."
-        };
+            return new CreateWorkspaceResponse { IsSuccess = false, Message = "An error occurred while creating the workspace." };
+        }
     }
 }

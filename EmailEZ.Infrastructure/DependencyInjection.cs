@@ -1,13 +1,13 @@
 ﻿using EmailEZ.Application.Interfaces; // For IApplicationDbContext, ICurrentUserService, IWorkspaceContext
+using EmailEZ.Infrastructure.Extensions; // For repository extensions
 using EmailEZ.Infrastructure.Persistence.DbContexts;
+using EmailEZ.Infrastructure.Services;
 using EmailEZ.Infrastructure.Services.Security; // For CurrentUserService, WorkspaceContextService
+using Hangfire;
+using Hangfire.PostgreSql;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Hangfire;
-using Hangfire.PostgreSql;
-using EmailEZ.Infrastructure.Services;
-using EmailEZ.Infrastructure.Extensions; // For repository extensions
 
 namespace EmailEZ.Infrastructure;
 

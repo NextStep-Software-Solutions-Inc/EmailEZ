@@ -1,34 +1,34 @@
-﻿using EmailEZ.Application.Interfaces; // For IApplicationDbContext
+﻿using EmailEZ.Application.Interfaces;
 using MediatR;
-using Microsoft.EntityFrameworkCore; // For FirstOrDefaultAsync and SaveChangesAsync
 
 namespace EmailEZ.Application.Features.Workspaces.Commands.DeleteWorkspace;
 
 public class DeleteWorkspaceCommandHandler : IRequestHandler<DeleteWorkspaceCommand, DeleteWorkspaceResponse>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IWorkspaceManagementService _workspaceManagementService;
 
-    public DeleteWorkspaceCommandHandler(IApplicationDbContext context)
+    public DeleteWorkspaceCommandHandler(IWorkspaceManagementService workspaceManagementService)
     {
-        _context = context;
+        _workspaceManagementService = workspaceManagementService;
     }
 
     public async Task<DeleteWorkspaceResponse> Handle(DeleteWorkspaceCommand request, CancellationToken cancellationToken)
     {
-        // 1. Find the workspace
-        var workspace = await _context.Workspaces.FirstOrDefaultAsync(t => t.Id == request.Id, cancellationToken);
-
-        if (workspace == null)
+        try
         {
-            return new DeleteWorkspaceResponse(false, $"Workspace with ID '{request.Id}' not found.");
+            var deletedWorkspace = await _workspaceManagementService.DeleteWorkspaceAsync(
+                request.Id,
+                cancellationToken);
+
+            return new DeleteWorkspaceResponse(true, "Workspace deleted successfully.");
         }
-
-        // 2. Remove the workspace
-        _context.Workspaces.Remove(workspace);
-
-        // 3. Save changes
-        await _context.SaveChangesAsync(cancellationToken);
-
-        return new DeleteWorkspaceResponse(true, "Workspace deleted successfully.");
+        catch (InvalidOperationException ex)
+        {
+            return new DeleteWorkspaceResponse(false, ex.Message);
+        }
+        catch (Exception)
+        {
+            return new DeleteWorkspaceResponse(false, "An error occurred while deleting the workspace.");
+        }
     }
 }

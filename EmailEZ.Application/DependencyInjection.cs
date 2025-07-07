@@ -2,6 +2,8 @@
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection; // Needed for Assembly
+using EmailEZ.Application.Interfaces;
+using EmailEZ.Application.Services;
 
 namespace EmailEZ.Application;
 
@@ -17,6 +19,12 @@ public static class DependencyInjection
         // This registers all validators in the current assembly.
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
+        // Register Application Services
+        services.AddScoped<IWorkspaceManagementService, WorkspaceManagementService>();
+        services.AddScoped<AdvancedDataService>();
+        services.AddScoped<SpecificationBasedQueryService>();
+        services.AddScoped<SimpleQueryService>();
+        services.AddScoped<EmailManagementService>();
         // Register MediatR pipeline behaviors
         // These run before and after the actual MediatR handlers.
         // ValidationBehavior ensures all requests are validated before being processed.
@@ -24,7 +32,7 @@ public static class DependencyInjection
         // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PerformanceBehaviour<,>));
         // services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehaviour<,>));
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(Common.Behaviors.ValidationBehavior<,>));
-         //services.AddTransient(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehaviour<,>)); // For error handling
+        //services.AddTransient(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehaviour<,>)); // For error handling
 
         return services;
     }

@@ -1,13 +1,14 @@
 using EmailEZ.Application.Interfaces;
 using EmailEZ.Domain.Entities;
 using EmailEZ.Domain.Enums;
+using Microsoft.EntityFrameworkCore;
 
 namespace EmailEZ.Application.Services;
 
 /// <summary>
 /// Service for managing workspace-related business operations.
 /// </summary>
-public class WorkspaceManagementService
+public class WorkspaceManagementService : IWorkspaceManagementService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IApiKeyHasher _apiKeyHasher;
@@ -187,6 +188,86 @@ public class WorkspaceManagementService
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return updatedUser;
+    }
+
+    /// <summary>
+    /// Updates a workspace's basic information.
+    /// </summary>
+    /// <param name="workspaceId">The workspace ID.</param>
+    /// <param name="name">The new name.</param>
+    /// <param name="domain">The new domain.</param>
+    /// <param name="isActive">The new active status.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>The updated workspace.</returns>
+    public async Task<Workspace> UpdateWorkspaceAsync(
+        Guid workspaceId,
+        string name,
+        string domain,
+        bool isActive,
+        CancellationToken cancellationToken = default)
+    {
+        // ? Business Rule: Ensure workspace exists
+        var workspace = await _unitOfWork.Workspaces.GetByIdAsync(workspaceId, cancellationToken);
+        if (workspace == null)
+        {
+            throw new InvalidOperationException($"Workspace with ID '{workspaceId}' not found.");
+        }
+
+        // ? Business Rule: Ensure workspace name is unique (excluding current workspace)
+        var existingWorkspaceWithName = await _unitOfWork.Workspaces
+            .Query()
+            .Where(w => w.Name == name && w.Id != workspaceId)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (existingWorkspaceWithName != null)
+        {
+            throw new InvalidOperationException($"Another workspace with name '{name}' already exists.");
+        }
+
+        // ? Business Rule: Ensure workspace domain is unique (excluding current workspace)
+        var existingWorkspaceWithDomain = await _unitOfWork.Workspaces
+            .Query()
+            .Where(w => w.Domain == domain && w.Id != workspaceId)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (existingWorkspaceWithDomain != null)
+        {
+            throw new InvalidOperationException($"Another workspace with domain '{domain}' already exists.");
+        }
+
+        // ? Update workspace properties
+        workspace.Name = name;
+        workspace.Domain = domain;
+        workspace.IsActive = isActive;
+
+        var updatedWorkspace = await _unitOfWork.Workspaces.UpdateAsync(workspace, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return updatedWorkspace;
+    }
+
+    /// <summary>
+    /// Deletes a workspace.
+    /// </summary>
+    /// <param name="workspaceId">The workspace ID.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>The deleted workspace.</returns>
+    public async Task<Workspace> DeleteWorkspaceAsync(
+        Guid workspaceId,
+        CancellationToken cancellationToken = default)
+    {
+        // ? Business Rule: Ensure workspace exists
+        var workspace = await _unitOfWork.Workspaces.GetByIdAsync(workspaceId, cancellationToken);
+        if (workspace == null)
+        {
+            throw new InvalidOperationException($"Workspace with ID '{workspaceId}' not found.");
+        }
+
+        // ? Remove workspace (soft delete)
+        await _unitOfWork.Workspaces.SoftDeleteAsync(workspace, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return workspace;
     }
 }
 

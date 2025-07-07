@@ -1,54 +1,37 @@
-﻿using EmailEZ.Application.Interfaces; // For IApplicationDbContext
+﻿using EmailEZ.Application.Interfaces;
 using MediatR;
-using Microsoft.EntityFrameworkCore; // For FirstOrDefaultAsync and SaveChangesAsync
 
 namespace EmailEZ.Application.Features.Workspaces.Commands.UpdateWorkspace;
 
 public class UpdateWorkspaceCommandHandler : IRequestHandler<UpdateWorkspaceCommand, UpdateWorkspaceResponse>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IWorkspaceManagementService _workspaceManagementService;
 
-    public UpdateWorkspaceCommandHandler(IApplicationDbContext context)
+    public UpdateWorkspaceCommandHandler(IWorkspaceManagementService workspaceManagementService)
     {
-        _context = context;
+        _workspaceManagementService = workspaceManagementService;
     }
 
     public async Task<UpdateWorkspaceResponse> Handle(UpdateWorkspaceCommand request, CancellationToken cancellationToken)
     {
-        // 1. Find the workspace
-        var workspace = await _context.Workspaces.FirstOrDefaultAsync(t => t.Id == request.Id, cancellationToken);
-
-        if (workspace == null)
+        try
         {
-            return new UpdateWorkspaceResponse(false, $"Workspace with ID '{request.Id}' not found.");
-        }
+            var updatedWorkspace = await _workspaceManagementService.UpdateWorkspaceAsync(
+                request.Id,
+                request.Name,
+                request.Domain,
+                request.IsActive,
+                cancellationToken);
 
-        // Optional: Check for duplicate Name or Domain if they are unique constraints
-        // For example, if you want to prevent changing domain to an existing one:
-        var existingWorkspaceWithSameDomain = await _context.Workspaces
-            .AnyAsync(t => t.Domain == request.Domain && t.Id != request.Id, cancellationToken);
-        if (existingWorkspaceWithSameDomain)
+            return new UpdateWorkspaceResponse(true, "Workspace updated successfully.");
+        }
+        catch (InvalidOperationException ex)
         {
-            return new UpdateWorkspaceResponse(false, $"Another workspace with domain '{request.Domain}' already exists.");
+            return new UpdateWorkspaceResponse(false, ex.Message);
         }
-
-        var existingWorkspaceWithSameName = await _context.Workspaces
-            .AnyAsync(t => t.Name == request.Name && t.Id != request.Id, cancellationToken);
-        if (existingWorkspaceWithSameName)
+        catch (Exception)
         {
-            return new UpdateWorkspaceResponse(false, $"Another workspace with name '{request.Name}' already exists.");
+            return new UpdateWorkspaceResponse(false, "An error occurred while updating the workspace.");
         }
-
-
-        // 2. Update properties
-        workspace.Name = request.Name;
-        workspace.Domain = request.Domain;
-        workspace.IsActive = request.IsActive;
-        // workspace.LastModifiedAtUtc = DateTime.UtcNow; // Consider adding LastModified field
-
-        // 3. Save changes
-        await _context.SaveChangesAsync(cancellationToken);
-
-        return new UpdateWorkspaceResponse(true, "Workspace updated successfully.");
     }
 }
