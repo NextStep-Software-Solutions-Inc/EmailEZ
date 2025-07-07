@@ -7,7 +7,6 @@ using EmailEZ.Application.Features.Workspaces.Queries.GetAllWorkspaces;
 using EmailEZ.Application.Features.Workspaces.Queries.GetWorkspaceById;
 using FluentValidation; // For ValidationException
 using MediatR; // For IMediator
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc; // For [FromBody]
 
 namespace EmailEZ.Api.Endpoints;
@@ -200,7 +199,5 @@ public class WorkspaceEndpoints : CarterModule
         .Produces<DeleteWorkspaceResponse>(StatusCodes.Status400BadRequest) // For business validation (less common here)
         .Produces(StatusCodes.Status404NotFound) // If workspace not found
         .ProducesProblem(StatusCodes.Status500InternalServerError);
-
-
     }
 }

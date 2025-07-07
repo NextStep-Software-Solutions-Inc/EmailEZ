@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Hangfire;
 using Hangfire.PostgreSql;
 using EmailEZ.Infrastructure.Services;
+using EmailEZ.Infrastructure.Extensions; // For repository extensions
 
 namespace EmailEZ.Infrastructure;
 
@@ -36,9 +37,11 @@ public static class DependencyInjection
         // Register Password Hasher and Encryptor (Singleton as they are stateless)
         services.AddSingleton<IApiKeyHasher, ApiKeyHasher>();
 
-
         // Register Email Sender Service
         services.AddTransient<IEmailSender, SmtpEmailSender>(); // Transient for new instance per send
+
+        // Register Repository Pattern and Data Services
+        services.AddDataServices();
 
         // Register Hangfire
         services.AddHangfire(config =>
@@ -59,7 +62,6 @@ public static class DependencyInjection
             option.SchedulePollingInterval = TimeSpan.FromSeconds(1);
         }); // This adds the background worker processes
 
-
         // Read encryption settings from configuration
         var encryptionKey = configuration["EncryptionSettings:Key"];
         
@@ -70,7 +72,6 @@ public static class DependencyInjection
         }
 
         services.AddSingleton<IEncryptionService>(new AesEncryptionService(encryptionKey));
-
 
         return services;
     }
