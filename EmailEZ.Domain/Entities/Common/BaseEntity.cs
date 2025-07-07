@@ -22,7 +22,7 @@ public abstract class BaseEntity
     /// Gets or sets the identifier of the entity or user who created this record.
     /// Could be a WorkspaceId, AdminUserId, or a system identifier.
     /// </summary>
-    public Guid? CreatedBy { get; set; }
+    public string? CreatedBy { get; set; }
 
     /// <summary>
     /// Gets or sets the date and time when the entity was last updated (UTC).
@@ -33,7 +33,7 @@ public abstract class BaseEntity
     /// Gets or sets the identifier of the entity or user who last updated this record.
     /// Could be a WorkspaceId, AdminUserId, or a system identifier.
     /// </summary>
-    public Guid? UpdatedBy { get; set; }
+    public string? UpdatedBy { get; set; }
 
     /// <summary>
     /// Gets or sets a flag indicating if the entity is soft-deleted.
@@ -48,5 +48,5 @@ public abstract class BaseEntity
     /// <summary>
     /// Gets or sets the identifier of the entity or user who soft-deleted this record.
     /// </summary>
-    public Guid? DeletedBy { get; set; }
+    public string? DeletedBy { get; set; }
 }

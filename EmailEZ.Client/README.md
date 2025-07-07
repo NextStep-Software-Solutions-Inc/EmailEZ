@@ -77,16 +77,7 @@ if (string.IsNullOrEmpty(emailApiBaseUrl) || string.IsNullOrEmpty(emailApiKey))
     Console.WriteLine("CRITICAL: Missing EmailApi configuration.");
 }
 
-builder.Services.AddHttpClient("EmailSenderClient", client =>
-{
-    client.Timeout = TimeSpan.FromSeconds(30);
-});
-
-builder.Services.AddTransient<IEmailSenderClient>(sp =>
-{
-    var client = sp.GetRequiredService<IHttpClientFactory>().CreateClient("EmailSenderClient");
-    return new EmailSenderClient(client, emailApiBaseUrl, emailApiKey);
-});
+builder.Services.AddEmailEZClient(emailApiBaseUrl, emailApiKey);
 
 var app = builder.Build();
 app.MapControllers();

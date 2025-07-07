@@ -1,41 +1,43 @@
 ﻿using EmailEZ.Application.Interfaces;
+using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
 namespace EmailEZ.Infrastructure.Services.Security;
 
 public class CurrentUserService : ICurrentUserService
 {
     private readonly IWorkspaceContext _workspaceContext; // Inject the workspace context
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public CurrentUserService(IWorkspaceContext workspaceContext)
+    public CurrentUserService(IWorkspaceContext workspaceContext, IHttpContextAccessor httpContextAccessor)
     {
         _workspaceContext = workspaceContext;
+        _httpContextAccessor = httpContextAccessor;
     }
 
-    public Guid? GetCurrentUserId()
+    public string? GetCurrentUserId()
     {
-        // If a workspace is set via API Key middleware, return the WorkspaceId
-        if (_workspaceContext.IsWorkspaceSet)
+        var userId = _httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!string.IsNullOrEmpty(userId))
         {
-            return _workspaceContext.WorkspaceId;
+            return userId;
         }
 
-        // For system-level operations (e.g., Hangfire jobs not tied to a specific API call)
-        // you might return a predefined system GUID, or null.
-        // For now, let's return null if no workspace context is available.
-        return null;
+        if (_workspaceContext.WorkspaceId.HasValue)
+        {
+            return _workspaceContext.WorkspaceId.Value.ToString();
+        }
+
+        return "System";
     }
 
     public Guid? GetCurrentWorkspaceId()
     {
-        // If a workspace is set via API Key middleware, return the WorkspaceId
-        if (_workspaceContext.IsWorkspaceSet)
+        if (_workspaceContext.WorkspaceId.HasValue)
         {
             return _workspaceContext.WorkspaceId;
         }
 
-        // For system-level operations (e.g., Hangfire jobs not tied to a specific API call)
-        // you might return a predefined system GUID, or null.
-        // For now, let's return null if no workspace context is available.
         return null;
     }
 }

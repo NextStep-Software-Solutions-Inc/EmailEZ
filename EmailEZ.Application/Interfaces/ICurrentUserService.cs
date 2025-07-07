@@ -1,4 +1,7 @@
-﻿namespace EmailEZ.Application.Interfaces;
+﻿using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
+
+namespace EmailEZ.Application.Interfaces;
 
 /// <summary>
 /// Provides information about the current user or actor performing an operation.
@@ -9,7 +12,7 @@ public interface ICurrentUserService
     /// Gets the unique identifier of the current user or actor.
     /// This could be a WorkspaceId, AdminUserId, or a system account ID.
     /// </summary>
-    Guid? GetCurrentUserId();
+    string? GetCurrentUserId();
 
     Guid? GetCurrentWorkspaceId();
 }
