@@ -13,4 +13,7 @@ public class Workspace : BaseEntity
     // Navigation properties
     public ICollection<Email> Emails { get; set; } = new List<Email>();
     public ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
+
+    public ICollection<EmailConfiguration> EmailConfigurations { get; set; } = new List<EmailConfiguration>();
+    public virtual ICollection<WorkspaceUser> WorkspaceUsers { get; set; } = new List<WorkspaceUser>();
 }

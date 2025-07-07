@@ -9,7 +9,6 @@ public class EmailConfiguration : BaseEntity // Inherit from your base entity cl
 {
     // Foreign key to link to the Workspace
     public Guid WorkspaceId { get; set; }
-    public Workspace Workspace { get; set; } = null!;
 
     // SMTP Server Details
     public string SmtpHost { get; set; } = string.Empty;
@@ -27,4 +26,8 @@ public class EmailConfiguration : BaseEntity // Inherit from your base entity cl
     public string DisplayName { get; set; } = string.Empty;
     public string FromEmail { get; set; } = string.Empty;
     public bool IsDefault { get; set; }
+
+    // Navigation property to the Workspace
+    public Workspace Workspace { get; set; } = null!;
+
 }

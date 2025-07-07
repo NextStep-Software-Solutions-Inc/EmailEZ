@@ -15,6 +15,7 @@ public interface IApplicationDbContext
     DbSet<EmailAttachment> EmailAttachments { get; }
     DbSet<EmailEvent> EmailEvents { get; }
     DbSet<AuditLog> AuditLogs { get; }
+    DbSet<WorkspaceUser> WorkspaceUsers { get; }
 
     DbSet<EmailConfiguration> EmailConfigurations { get; }
 
