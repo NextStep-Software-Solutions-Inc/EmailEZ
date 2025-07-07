@@ -38,7 +38,11 @@ public static class RepositoryExtensions
     public static IServiceCollection AddAdvancedDataServices(this IServiceCollection services)
     {
         // Register advanced services
-       
+        services.AddScoped<IWorkspaceManagementService, WorkspaceManagementService>();
+        services.AddScoped<AdvancedDataService>();
+        services.AddScoped<SpecificationBasedQueryService>();
+        services.AddScoped<SimpleQueryService>();
+        services.AddScoped<EmailManagementService>();
 
         // Note: Business services like WorkspaceManagementService are registered in Application layer
         // Note: EmailManagementService will be registered in Application layer

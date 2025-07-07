@@ -28,7 +28,6 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
     public DbSet<EmailAttachment> EmailAttachments { get; set; } = null!;
     public DbSet<EmailEvent> EmailEvents { get; set; } = null!;
     public DbSet<AuditLog> AuditLogs { get; set; } = null!;
-
     public DbSet<WorkspaceUser> WorkspaceUsers { get; set; } = null!;
 
 

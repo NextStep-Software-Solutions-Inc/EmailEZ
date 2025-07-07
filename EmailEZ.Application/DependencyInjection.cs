@@ -20,11 +20,7 @@ public static class DependencyInjection
         services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
         // Register Application Services
-        services.AddScoped<IWorkspaceManagementService, WorkspaceManagementService>();
-        services.AddScoped<AdvancedDataService>();
-        services.AddScoped<SpecificationBasedQueryService>();
-        services.AddScoped<SimpleQueryService>();
-        services.AddScoped<EmailManagementService>();
+       
         // Register MediatR pipeline behaviors
         // These run before and after the actual MediatR handlers.
         // ValidationBehavior ensures all requests are validated before being processed.
