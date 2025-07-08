@@ -1,5 +1,6 @@
-using EmailEZ.Domain.Common;
 using System.Linq.Expressions;
+using EmailEZ.Domain.Entities.Common;
+using EmailEZ.Domain.Interfaces;
 
 namespace EmailEZ.Application.Interfaces;
 

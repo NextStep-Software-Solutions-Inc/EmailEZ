@@ -1,11 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using EmailEZ.Domain.Interfaces;
 
-namespace EmailEZ.Domain.Common;
+namespace EmailEZ.Domain.Entities.Common;
+
 
 /// <summary>
 /// Base class for all domain entities with common properties like Id and auditing fields.
 /// </summary>
-public abstract class BaseEntity
+public abstract class BaseEntity : IBaseEntity
 {
     /// <summary>
     /// Gets or sets the unique identifier for the entity.

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore; // For FirstOrDefaultAsync
 
 namespace EmailEZ.Application.Features.EmailConfigurations.Queries.GetEmailConfigurationById;
 
-public class GetEmailConfigurationByIdQueryHandler : IRequestHandler<GetEmailConfigurationByIdQuery, GetEmailConfigurationByIdResponse>
+public class GetEmailConfigurationByIdQueryHandler : IRequestHandler<GetEmailConfigurationByIdQuery, GetEmailConfigurationByIdResponse?>
 {
     private readonly IApplicationDbContext _context;
 
@@ -13,7 +13,7 @@ public class GetEmailConfigurationByIdQueryHandler : IRequestHandler<GetEmailCon
         _context = context;
     }
 
-    public async Task<GetEmailConfigurationByIdResponse> Handle(GetEmailConfigurationByIdQuery request, CancellationToken cancellationToken)
+    public async Task<GetEmailConfigurationByIdResponse?> Handle(GetEmailConfigurationByIdQuery request, CancellationToken cancellationToken)
     {
         var config = await _context.EmailConfigurations
             .AsNoTracking()

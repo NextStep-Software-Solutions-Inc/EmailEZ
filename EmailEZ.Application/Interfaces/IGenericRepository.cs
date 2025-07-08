@@ -1,5 +1,5 @@
-using EmailEZ.Domain.Common;
 using System.Linq.Expressions;
+using EmailEZ.Domain.Entities.Common;
 
 namespace EmailEZ.Application.Interfaces;
 
@@ -10,7 +10,7 @@ namespace EmailEZ.Application.Interfaces;
 public interface IGenericRepository<TEntity> where TEntity : BaseEntity
 {
     #region Basic CRUD Operations
-    
+
     /// <summary>
     /// Gets an entity by its unique identifier.
     /// </summary>
@@ -80,7 +80,7 @@ public interface IGenericRepository<TEntity> where TEntity : BaseEntity
     /// <param name="entity">The entity to update.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The updated entity.</returns>
-    Task<TEntity> UpdateAsync(TEntity entity, CancellationToken cancellationToken = default);
+    void Update(TEntity entity);
 
     /// <summary>
     /// Soft deletes an entity by setting IsDeleted to true.
@@ -88,7 +88,7 @@ public interface IGenericRepository<TEntity> where TEntity : BaseEntity
     /// <param name="entity">The entity to soft delete.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    Task SoftDeleteAsync(TEntity entity, CancellationToken cancellationToken = default);
+    void SoftDelete(TEntity entity);
 
     /// <summary>
     /// Soft deletes an entity by its identifier.
@@ -104,7 +104,7 @@ public interface IGenericRepository<TEntity> where TEntity : BaseEntity
     /// <param name="entity">The entity to hard delete.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    Task HardDeleteAsync(TEntity entity, CancellationToken cancellationToken = default);
+    void HardDelete(TEntity entity);
 
     /// <summary>
     /// Hard deletes an entity by its identifier.
@@ -127,21 +127,22 @@ public interface IGenericRepository<TEntity> where TEntity : BaseEntity
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>A paginated result of entities.</returns>
     Task<(IEnumerable<TEntity> Items, int TotalCount)> GetPagedAsync(
-        int pageNumber, 
-        int pageSize, 
+        int pageNumber,
+        int pageSize,
         Expression<Func<TEntity, bool>>? predicate = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Gets entities with include support for related entities.
+    /// Gets entities with optional filtering and include support for related entities.
     /// </summary>
-    /// <param name="includes">Expressions to include related entities.</param>
+    /// <param name="predicate">Optional filter expression.</param>
+    /// <param name="includes">Optional array of include expressions for navigation properties.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>A collection of entities with related data loaded.</returns>
     Task<IEnumerable<TEntity>> GetWithIncludesAsync(
-        Expression<Func<TEntity, object>>[] includes,
+        Expression<Func<TEntity, bool>>? predicate = null,
+        Expression<Func<TEntity, object>>[]? includes = null,
         CancellationToken cancellationToken = default);
-
     #endregion
 
     #region Batch Operations
@@ -184,7 +185,7 @@ public interface IGenericRepository<TEntity> where TEntity : BaseEntity
     /// <param name="entities">The entities to update.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
-    Task UpdateRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default);
+    void UpdateRange(IEnumerable<TEntity> entities);
 
     /// <summary>
     /// Performs an upsert operation (insert or update based on existence).
@@ -399,7 +400,17 @@ public interface IGenericRepository<TEntity> where TEntity : BaseEntity
     /// Creates a simple query builder for building dynamic queries with fluent API.
     /// </summary>
     /// <returns>A query builder instance.</returns>
-    IQueryBuilder<TEntity> Query();
+    IQueryable<TEntity> Query(Expression<Func<TEntity, bool>>? predicate = null);
+
+    // Get the materialized query with all applied filters, sorting, and includes.
+    /// <summary>
+    /// Gets the materialized query with all applied filters, sorting, and includes.
+    /// </summary>
+    /// <param name="query">The query to materialize.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>A collection of entities matching the query.</returns>
+    Task<IEnumerable<TResult>> ToListAsync<TResult>(IQueryable<TResult> query, CancellationToken cancellationToken = default);
+
 
     #endregion
 }

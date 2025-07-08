@@ -1,7 +1,5 @@
-﻿// EmailEZ.Domain/Entities/EmailConfiguration.cs
-
-using EmailEZ.Domain.Common; // Assuming BaseAuditableEntity is here
-using System;
+﻿using System.Text.Json.Serialization;
+using EmailEZ.Domain.Entities.Common;
 
 namespace EmailEZ.Domain.Entities;
 
@@ -28,6 +26,7 @@ public class EmailConfiguration : BaseEntity // Inherit from your base entity cl
     public bool IsDefault { get; set; }
 
     // Navigation property to the Workspace
-    public Workspace Workspace { get; set; } = null!;
+    [JsonIgnore]
+    public virtual Workspace Workspace { get; set; } = null!;
 
 }

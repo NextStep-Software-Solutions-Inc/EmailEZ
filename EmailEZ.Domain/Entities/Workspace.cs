@@ -1,4 +1,6 @@
-﻿using EmailEZ.Domain.Common;
+﻿
+using System.Text.Json.Serialization;
+using EmailEZ.Domain.Entities.Common;
 
 namespace EmailEZ.Domain.Entities;
 
@@ -11,9 +13,15 @@ public class Workspace : BaseEntity
     public DateTimeOffset ApiKeyLastUsedAt { get; set; }
 
     // Navigation properties
-    public ICollection<Email> Emails { get; set; } = new List<Email>();
-    public ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
+    [JsonIgnore]
+    public virtual ICollection<Email> Emails { get; set; } = new List<Email>();
+    
+    [JsonIgnore]
+    public virtual ICollection<AuditLog> AuditLogs { get; set; } = new List<AuditLog>();
 
-    public ICollection<EmailConfiguration> EmailConfigurations { get; set; } = new List<EmailConfiguration>();
+    [JsonIgnore]
+    public virtual ICollection<EmailConfiguration> EmailConfigurations { get; set; } = new List<EmailConfiguration>();
+
+    [JsonIgnore]
     public virtual ICollection<WorkspaceUser> WorkspaceUsers { get; set; } = new List<WorkspaceUser>();
 }

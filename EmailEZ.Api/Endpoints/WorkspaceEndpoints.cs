@@ -5,6 +5,7 @@ using EmailEZ.Application.Features.Workspaces.Commands.DeleteWorkspace;
 using EmailEZ.Application.Features.Workspaces.Commands.UpdateWorkspace;
 using EmailEZ.Application.Features.Workspaces.Queries.GetAllWorkspaces;
 using EmailEZ.Application.Features.Workspaces.Queries.GetWorkspaceById;
+using EmailEZ.Application.Features.Workspaces.Queries.GetWorkspaceAnalytics;
 using FluentValidation; // For ValidationException
 using MediatR; // For IMediator
 using Microsoft.AspNetCore.Mvc; // For [FromBody]
@@ -198,6 +199,27 @@ public class WorkspaceEndpoints : CarterModule
         .Produces(StatusCodes.Status204NoContent) // Successful deletion, no content returned
         .Produces<DeleteWorkspaceResponse>(StatusCodes.Status400BadRequest) // For business validation (less common here)
         .Produces(StatusCodes.Status404NotFound) // If workspace not found
+        .ProducesProblem(StatusCodes.Status500InternalServerError);
+
+        // GET /api/v1/workspaces/{id:guid}/analytics
+        group.MapGet("/{id:guid}/analytics",
+            async (Guid id, [FromQuery] int? daysBack, IMediator mediator, ILogger<WorkspaceEndpoints> logger) =>
+            {
+                var query = new GetWorkspaceAnalyticsQuery(id, daysBack);
+                var response = await mediator.Send(query);
+
+                if (response == null)
+                {
+                    return Results.NotFound($"Workspace with ID '{id}' not found.");
+                }
+
+                return Results.Ok(response);
+            }
+                
+        )
+        .WithName("GetWorkspaceAnalytics")
+        .Produces<GetWorkspaceAnalyticsResponse>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status404NotFound)
         .ProducesProblem(StatusCodes.Status500InternalServerError);
     }
 }

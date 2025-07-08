@@ -9,6 +9,14 @@ namespace EmailEZ.Application.Interfaces;
 /// </summary>
 public interface IWorkspaceManagementService
 {
+
+    /// <summary>
+    /// Retrieves all workspaces for the current user.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>A list of workspaces.</returns>
+    Task<List<Workspace>> GetAllWorkspacesForCurrentUserAsync(CancellationToken cancellationToken = default);
+
     /// <summary>
     /// Creates a new workspace with an owner.
     /// </summary>

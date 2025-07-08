@@ -1,4 +1,4 @@
-using EmailEZ.Domain.Common;
+using EmailEZ.Domain.Entities.Common;
 using EmailEZ.Domain.Enums;
 
 namespace EmailEZ.Domain.Entities;

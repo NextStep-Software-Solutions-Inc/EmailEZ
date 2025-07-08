@@ -1,3 +1,4 @@
+using EmailEZ.Application.Features.Workspaces.Queries.GetWorkspaceAnalytics;
 using EmailEZ.Domain.Entities;
 using EmailEZ.Domain.Enums;
 
@@ -66,9 +67,9 @@ public interface IEmailRepository : IGenericRepository<Email>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Email statistics grouped by status.</returns>
     Task<Dictionary<EmailStatus, int>> GetEmailStatisticsAsync(
-        Guid workspaceId, 
-        DateTimeOffset? fromDate = null, 
-        DateTimeOffset? toDate = null, 
+        Guid workspaceId,
+        DateTimeOffset? fromDate = null,
+        DateTimeOffset? toDate = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -80,8 +81,13 @@ public interface IEmailRepository : IGenericRepository<Email>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>A collection of emails sent within the date range.</returns>
     Task<IEnumerable<Email>> GetEmailsByDateRangeAsync(
-        Guid workspaceId, 
-        DateTimeOffset fromDate, 
-        DateTimeOffset toDate, 
+        Guid workspaceId,
+        DateTimeOffset fromDate,
+        DateTimeOffset toDate,
         CancellationToken cancellationToken = default);
+
+    Task<EmailStatsDto> GetWorkspaceEmailStatsAsync(Guid workspaceId, DateTimeOffset periodStart, CancellationToken cancellationToken);
+    Task<List<EmailVolumePointDto>> GetEmailVolumeOverTimeAsync(Guid workspaceId, DateTimeOffset fromDate, DateTimeOffset toDate, CancellationToken cancellationToken = default);
+    Task<List<RecentPerformanceDto>> GetRecentPerformanceAsync(Guid workspaceId, CancellationToken cancellationToken = default);
 }
+

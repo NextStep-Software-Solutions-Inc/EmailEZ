@@ -15,7 +15,7 @@ public interface IUnitOfWork : IDisposable
     /// <summary>
     /// Gets the repository for Email entities.
     /// </summary>
-    IGenericRepository<Email> Emails { get; }
+    IEmailRepository Emails { get; }
 
     /// <summary>
     /// Gets the repository for EmailAttachment entities.
@@ -35,7 +35,7 @@ public interface IUnitOfWork : IDisposable
     /// <summary>
     /// Gets the repository for EmailConfiguration entities.
     /// </summary>
-    IGenericRepository<EmailConfiguration> EmailConfigurations { get; }
+    IEmailConfigurationRepository EmailConfigurations { get; }
 
     /// <summary>
     /// Gets the repository for WorkspaceUser entities.

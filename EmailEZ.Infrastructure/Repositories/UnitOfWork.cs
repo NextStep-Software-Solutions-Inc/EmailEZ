@@ -20,7 +20,7 @@ public class UnitOfWork : IUnitOfWork
     private IGenericRepository<EmailAttachment>? _emailAttachments;
     private IGenericRepository<EmailEvent>? _emailEvents;
     private IGenericRepository<AuditLog>? _auditLogs;
-    private IGenericRepository<EmailConfiguration>? _emailConfigurations;
+    private IEmailConfigurationRepository? _emailConfigurations;
     private IWorkspaceUserRepository? _workspaceUsers;
 
     public UnitOfWork(IApplicationDbContext context)
@@ -38,7 +38,7 @@ public class UnitOfWork : IUnitOfWork
         }
     }
 
-    public IGenericRepository<Email> Emails
+    public IEmailRepository Emails
     {
         get
         {
@@ -74,11 +74,11 @@ public class UnitOfWork : IUnitOfWork
         }
     }
 
-    public IGenericRepository<EmailConfiguration> EmailConfigurations
+    public IEmailConfigurationRepository EmailConfigurations
     {
         get
         {
-            _emailConfigurations ??= new GenericRepository<EmailConfiguration>(_context);
+            _emailConfigurations ??= new EmailConfigurationRepository(_context);
             return _emailConfigurations;
         }
     }

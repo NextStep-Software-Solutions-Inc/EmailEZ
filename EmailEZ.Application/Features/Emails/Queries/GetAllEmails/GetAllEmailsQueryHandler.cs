@@ -11,15 +11,16 @@ namespace EmailEZ.Application.Features.Emails.Queries.GetAllEmails;
 public class GetAllEmailsQueryHandler : IRequestHandler<GetAllEmailsQuery, PaginatedList<EmailDto>>
 {
     private readonly IApplicationDbContext _context;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public GetAllEmailsQueryHandler(IApplicationDbContext context)
+    public GetAllEmailsQueryHandler(IApplicationDbContext context, IUnitOfWork unitOfWork)
     {
         _context = context;
+        _unitOfWork = unitOfWork;
     }
-
     public async Task<PaginatedList<EmailDto>> Handle(GetAllEmailsQuery request, CancellationToken cancellationToken)
     {
-        IQueryable<Email> query = _context.Emails;
+        var query = _unitOfWork.EmailRepository.Query();
 
         // Apply optional filters
         if (request.Status.HasValue)

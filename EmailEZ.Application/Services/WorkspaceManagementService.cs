@@ -12,11 +12,13 @@ public class WorkspaceManagementService : IWorkspaceManagementService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IApiKeyHasher _apiKeyHasher;
+    private readonly ICurrentUserService _currentUserService;
 
-    public WorkspaceManagementService(IUnitOfWork unitOfWork, IApiKeyHasher apiKeyHasher)
+    public WorkspaceManagementService(IUnitOfWork unitOfWork, IApiKeyHasher apiKeyHasher, ICurrentUserService currentUserService)
     {
         _unitOfWork = unitOfWork;
         _apiKeyHasher = apiKeyHasher;
+        _currentUserService = currentUserService;
     }
 
     /// <summary>
@@ -184,10 +186,10 @@ public class WorkspaceManagementService : IWorkspaceManagementService
 
         // ? Update role
         workspaceUser.Role = newRole;
-        var updatedUser = await _unitOfWork.WorkspaceUsers.UpdateAsync(workspaceUser, cancellationToken);
+        _unitOfWork.WorkspaceUsers.Update(workspaceUser);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return updatedUser;
+        return workspaceUser;
     }
 
     /// <summary>
@@ -240,10 +242,10 @@ public class WorkspaceManagementService : IWorkspaceManagementService
         workspace.Domain = domain;
         workspace.IsActive = isActive;
 
-        var updatedWorkspace = await _unitOfWork.Workspaces.UpdateAsync(workspace, cancellationToken);
+        _unitOfWork.Workspaces.Update(workspace);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return updatedWorkspace;
+        return workspace;
     }
 
     /// <summary>
@@ -264,10 +266,28 @@ public class WorkspaceManagementService : IWorkspaceManagementService
         }
 
         // ? Remove workspace (soft delete)
-        await _unitOfWork.Workspaces.SoftDeleteAsync(workspace, cancellationToken);
+        _unitOfWork.Workspaces.SoftDelete(workspace);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return workspace;
+    }
+
+    public async Task<List<Workspace>> GetAllWorkspacesForCurrentUserAsync(CancellationToken cancellationToken = default)
+    {
+        // ? Business Rule: Get all workspaces for the current user
+        var userId = _currentUserService.GetCurrentUserId();
+        if (string.IsNullOrEmpty(userId))
+        {
+            return new List<Workspace>();
+        }
+        var workspaces = await _unitOfWork.Workspaces
+            .Query()
+            .Where(w => w.WorkspaceUsers.Any(wu => wu.UserId == userId))
+            .Include(w => w.WorkspaceUsers)
+            .AsNoTracking() // Recommended for read operations
+            .ToListAsync(cancellationToken);
+
+        return workspaces.ToList();
     }
 }
 

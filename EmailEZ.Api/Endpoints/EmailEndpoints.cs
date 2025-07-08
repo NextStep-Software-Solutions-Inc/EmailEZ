@@ -66,7 +66,7 @@ public class EmailEndpoints : CarterModule
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "An error occurred while enqueuing email send for Workspace ID: {WorkspaceId}", command.WorkspaceId);
+                logger.LogError(ex, "An error occurred while enqueuing email send for command: {@Command}", command);
                 return Results.Problem("An unexpected error occurred while processing your request.", statusCode: StatusCodes.Status500InternalServerError);
             }
         })
@@ -91,11 +91,11 @@ public class EmailEndpoints : CarterModule
             try
             {
                 // Ensure the workspaceId from the route matches the command's workspaceId
-                if (workspaceId != command.WorkspaceId)
+                if (workspaceId == Guid.Empty)
                 {
-                    return Results.BadRequest("Workspace ID in URL path must match Workspace ID in request body.");
+                    return Results.BadRequest("Workspace ID in URL path cannot be empty.");
                 }
-
+                
                 var response = await mediator.Send(command);
 
                 if (response.Success)

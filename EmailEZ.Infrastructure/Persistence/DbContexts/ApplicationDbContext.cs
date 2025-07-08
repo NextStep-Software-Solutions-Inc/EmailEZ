@@ -1,6 +1,6 @@
 ﻿using EmailEZ.Application.Interfaces; // For ICurrentUserService and IApplicationDbContext
-using EmailEZ.Domain.Common; // For BaseEntity
 using EmailEZ.Domain.Entities; // For our entities
+using EmailEZ.Domain.Entities.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders; // For EntityTypeBuilder
 

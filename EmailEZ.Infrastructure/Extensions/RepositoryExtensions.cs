@@ -41,7 +41,6 @@ public static class RepositoryExtensions
         services.AddScoped<IWorkspaceManagementService, WorkspaceManagementService>();
         services.AddScoped<AdvancedDataService>();
         services.AddScoped<SpecificationBasedQueryService>();
-        services.AddScoped<SimpleQueryService>();
         services.AddScoped<EmailManagementService>();
 
         // Note: Business services like WorkspaceManagementService are registered in Application layer

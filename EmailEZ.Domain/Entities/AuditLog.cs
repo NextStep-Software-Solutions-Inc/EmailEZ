@@ -1,4 +1,4 @@
-﻿using EmailEZ.Domain.Common;
+﻿using EmailEZ.Domain.Entities.Common;
 using EmailEZ.Domain.Enums;
 
 namespace EmailEZ.Domain.Entities;
@@ -13,5 +13,5 @@ public class AuditLog : BaseEntity
     public string? Details { get; set; }
 
     // Navigation property (Optional, because WorkspaceId is nullable)
-    public Workspace? Workspace { get; set; }
+    public virtual Workspace? Workspace { get; set; }
 }

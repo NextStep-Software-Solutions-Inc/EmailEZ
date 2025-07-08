@@ -1,4 +1,4 @@
-﻿using EmailEZ.Domain.Common;
+﻿using EmailEZ.Domain.Entities.Common;
 using EmailEZ.Domain.Enums;
 
 namespace EmailEZ.Domain.Entities;
@@ -31,9 +31,9 @@ public class Email : BaseEntity
     public int AttemptCount { get; set; } = 0;
 
     // Navigation properties
-    public Workspace Workspace { get; set; } = null!;
+    public virtual Workspace Workspace { get; set; } = null!;
 
-    public EmailConfiguration EmailConfiguration { get; set; } = null!; 
-    public ICollection<EmailAttachment> Attachments { get; set; } = new List<EmailAttachment>();
-    public ICollection<EmailEvent> Events { get; set; } = new List<EmailEvent>();
+    public virtual EmailConfiguration EmailConfiguration { get; set; } = null!; 
+    public virtual ICollection<EmailAttachment> Attachments { get; set; } = new List<EmailAttachment>();
+    public virtual ICollection<EmailEvent> Events { get; set; } = new List<EmailEvent>();
 }

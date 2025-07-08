@@ -1,26 +1,16 @@
 ﻿using MediatR;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore; // For FirstOrDefaultAsync
 using EmailEZ.Application.Interfaces;
+using EmailEZ.Domain.Entities;
 
 namespace EmailEZ.Application.Features.Workspaces.Queries.GetWorkspaceById;
 
-public class GetWorkspaceByIdQueryHandler : IRequestHandler<GetWorkspaceByIdQuery, GetWorkspaceByIdResponse?>
+public class GetWorkspaceByIdQueryHandler(IGenericRepository<Workspace> workspaceRepository) : IRequestHandler<GetWorkspaceByIdQuery, GetWorkspaceByIdResponse?>
 {
-    private readonly IApplicationDbContext _context;
-
-    public GetWorkspaceByIdQueryHandler(IApplicationDbContext context)
-    {
-        _context = context;
-    }
+    private readonly IGenericRepository<Workspace> _workspaceRepository = workspaceRepository;
 
     public async Task<GetWorkspaceByIdResponse?> Handle(GetWorkspaceByIdQuery request, CancellationToken cancellationToken)
     {
-        var workspace = await _context.Workspaces
-            .AsNoTracking() // Recommended for read operations
-            .FirstOrDefaultAsync(t => t.Id == request.Id, cancellationToken);
-
+        var workspace = await _workspaceRepository.GetByIdAsync(request.Id, cancellationToken);
         if (workspace == null)
         {
             return null;

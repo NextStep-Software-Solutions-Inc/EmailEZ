@@ -1,5 +1,5 @@
 using EmailEZ.Application.Interfaces;
-using EmailEZ.Domain.Common;
+using EmailEZ.Domain.Entities.Common;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
@@ -51,7 +51,7 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
 
     public virtual async Task<int> CountAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default)
     {
-        return await _dbSet.CountAsync(predicate, cancellationToken);
+        return await _dbSet.AsNoTracking().CountAsync(predicate, cancellationToken);
     }
 
     public virtual async Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken = default)
@@ -65,13 +65,12 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
         await _dbSet.AddRangeAsync(entities, cancellationToken);
     }
 
-    public virtual async Task<TEntity> UpdateAsync(TEntity entity, CancellationToken cancellationToken = default)
+    public virtual void Update(TEntity entity)
     {
         _dbSet.Update(entity);
-        return entity;
     }
 
-    public virtual async Task SoftDeleteAsync(TEntity entity, CancellationToken cancellationToken = default)
+    public virtual void SoftDelete(TEntity entity)
     {
         entity.IsDeleted = true;
         entity.DeletedAt = DateTimeOffset.UtcNow;
@@ -84,11 +83,11 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
         var entity = await GetByIdAsync(id, cancellationToken);
         if (entity != null)
         {
-            await SoftDeleteAsync(entity, cancellationToken);
+            SoftDelete(entity);
         }
     }
 
-    public virtual async Task HardDeleteAsync(TEntity entity, CancellationToken cancellationToken = default)
+    public virtual void HardDelete(TEntity entity)
     {
         _dbSet.Remove(entity);
     }
@@ -98,7 +97,7 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
         var entity = await GetByIdAsync(id, cancellationToken);
         if (entity != null)
         {
-            await HardDeleteAsync(entity, cancellationToken);
+            HardDelete(entity);
         }
     }
 
@@ -129,14 +128,24 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
     }
 
     public virtual async Task<IEnumerable<TEntity>> GetWithIncludesAsync(
-        Expression<Func<TEntity, object>>[] includes,
-        CancellationToken cancellationToken = default)
+    Expression<Func<TEntity, bool>>? predicate = null,
+    Expression<Func<TEntity, object>>[]? includes = null,
+    CancellationToken cancellationToken = default)
     {
         var query = _dbSet.AsQueryable();
-        
-        foreach (var include in includes)
+
+        if (predicate != null)
         {
-            query = query.Include(include);
+            query = query.Where(predicate);
+        }
+
+        if (includes != null)
+        {
+            foreach (var include in includes)
+            {
+
+                query = query.Include(include);
+            }
         }
 
         return await query.ToListAsync(cancellationToken);
@@ -188,7 +197,7 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
         return entities.Count();
     }
 
-    public virtual async Task UpdateRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
+    public virtual void UpdateRange(IEnumerable<TEntity> entities)
     {
         _dbSet.UpdateRange(entities);
     }
@@ -300,7 +309,7 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
         Expression<Func<TEntity, bool>>? predicate = null,
         CancellationToken cancellationToken = default)
     {
-        var query = _dbSet.AsQueryable();
+        var query = _dbSet.AsQueryable().AsNoTracking();
 
         if (predicate != null)
         {
@@ -367,7 +376,7 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
         Expression<Func<TEntity, bool>>? predicate = null,
         CancellationToken cancellationToken = default)
     {
-        var query = _dbSet.AsQueryable();
+        var query = _dbSet.AsQueryable().AsNoTracking();
 
         if (predicate != null)
         {
@@ -520,9 +529,21 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
 
     #region Simple Query Builder
 
-    public virtual IQueryBuilder<TEntity> Query()
+    public virtual IQueryable<TEntity> Query(Expression<Func<TEntity, bool>>? predicate = null)
     {
-        return new QueryBuilder<TEntity>(_dbSet);
+        var query = _dbSet.AsQueryable();
+        
+        if (predicate != null)
+        {
+            query = query.Where(predicate);
+        }
+
+        return query;
+    }
+
+    public async Task<IEnumerable<TResult>> ToListAsync<TResult>(IQueryable<TResult> query, CancellationToken cancellationToken = default)
+    {
+        return await query.ToListAsync(cancellationToken);
     }
 
     #endregion
