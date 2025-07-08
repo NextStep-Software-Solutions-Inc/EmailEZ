@@ -138,7 +138,8 @@ builder.Services.AddApplicationServices();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient<IEmailSenderClient, EmailSenderClient>(client =>
 {
-    client.BaseAddress = new Uri(builder.Configuration["EmailEZ:ApiBaseUrl"]);
+    var baseUrl = builder.Configuration["EmailEZ:ApiBaseUrl"] ?? throw new InvalidOperationException("EmailEZ:ApiBaseUrl is not configured.");
+    client.BaseAddress = new Uri(baseUrl);
 
 })
 .ConfigureHttpClient(httpClient =>

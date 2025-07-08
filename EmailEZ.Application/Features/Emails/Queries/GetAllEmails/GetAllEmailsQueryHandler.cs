@@ -20,7 +20,7 @@ public class GetAllEmailsQueryHandler : IRequestHandler<GetAllEmailsQuery, Pagin
     }
     public async Task<PaginatedList<EmailDto>> Handle(GetAllEmailsQuery request, CancellationToken cancellationToken)
     {
-        var query = _unitOfWork.EmailRepository.Query();
+        var query = _unitOfWork.Emails.Query();
 
         // Apply optional filters
         if (request.Status.HasValue)

@@ -36,7 +36,7 @@ public class AdvancedDataService
         await _unitOfWork.BeginTransactionAsync(cancellationToken);
         try
         {
-            var updateCount = await _unitOfWork.EmailRepository.BatchUpdateAsync(
+            var updateCount = await _unitOfWork.Emails.BatchUpdateAsync(
                 e => e.WorkspaceId == workspaceId && e.Status == fromStatus,
                 e => new Email 
                 { 

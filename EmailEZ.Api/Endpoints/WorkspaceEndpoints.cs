@@ -8,7 +8,13 @@ using EmailEZ.Application.Features.Workspaces.Queries.GetWorkspaceById;
 using EmailEZ.Application.Features.Workspaces.Queries.GetWorkspaceAnalytics;
 using FluentValidation; // For ValidationException
 using MediatR; // For IMediator
-using Microsoft.AspNetCore.Mvc; // For [FromBody]
+using Microsoft.AspNetCore.Mvc;
+using EmailEZ.Domain.Entities;
+using EmailEZ.Application.Features.WorkspaceUsers.Commands.AddWorkspaceMemberCommand;
+using EmailEZ.Application.Features.WorkspaceUsers.Commands.RemoveWorkspaceMemberCommand;
+using EmailEZ.Application.Features.WorkspaceUsers.Commands.UpdateWorkspaceMemberRoleCommand;
+using EmailEZ.Application.Features.WorkspaceUsers.Dtos;
+using EmailEZ.Application.Features.WorkspaceUsers.Queries.GetAllWorkspaceMembers; // For [FromBody]
 
 namespace EmailEZ.Api.Endpoints;
 
@@ -26,7 +32,7 @@ public class WorkspaceEndpoints : CarterModule
 
     public override void AddRoutes(IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup(WorkspacesBaseRoute) 
+        var group = app.MapGroup(WorkspacesBaseRoute)
                        .WithTags("Workspaces")
                        .WithOpenApi()
                        .RequireAuthorization();
@@ -215,11 +221,105 @@ public class WorkspaceEndpoints : CarterModule
 
                 return Results.Ok(response);
             }
-                
+
         )
         .WithName("GetWorkspaceAnalytics")
         .Produces<GetWorkspaceAnalyticsResponse>(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status404NotFound)
         .ProducesProblem(StatusCodes.Status500InternalServerError);
+
+
+        // POST /api/v1/workspaces/{workspaceId}/members
+        group.MapPost("/{id:guid}/members", async (
+            Guid id,
+            AddWorkspaceMemberRequest request,
+            IMediator mediator,
+            ILogger<WorkspaceEndpoints> logger,
+            CancellationToken cancellationToken) =>
+        {
+            var command = new AddWorkspaceMemberCommand(id, request.UserId, request.Role);
+            var response = await mediator.Send(command, cancellationToken);
+            if (response == null || !response.Success)
+            {
+                // If the response indicates failure, return a BadRequest with the message
+                logger.LogError("Failed to add member to workspace: {Message}", response?.Message);
+                return Results.BadRequest(response);
+            }
+            return Results.Ok(response);
+        })
+        .WithName("AddWorkspaceMember")
+        .WithSummary("Add a member to a workspace")
+        .WithDescription("Adds a new member to the specified workspace with the given role.")
+        .Produces(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status400BadRequest);
+
+        // DELETE /api/v1/workspaces/{workspaceId}/members/{userId}
+        group.MapDelete("/{id:guid}/members/{userId}", async (
+            Guid id,
+            string userId,
+            IMediator mediator,
+            ILogger<WorkspaceEndpoints> logger,
+            CancellationToken cancellationToken) =>
+        {
+            var command = new RemoveWorkspaceMemberCommand(id, userId);
+            var result = await mediator.Send(command, cancellationToken);
+            if (result == null || !result.Success)
+            {
+                // If the response indicates failure, return a NotFound with the message
+                logger.LogError("Failed to remove member from workspace: {Message}", result?.Message);
+                {
+                    return Results.NotFound($"User with ID '{userId}' not found in workspace.");
+                }
+            }
+            return Results.Ok(result);
+        })
+        .WithName("RemoveWorkspaceMember")
+        .WithSummary("Remove a member from a workspace")
+        .WithDescription("Removes the specified member from the workspace.")
+        .Produces(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status404NotFound);
+
+        // PUT /api/v1/workspaces/{workspaceId}/members/{userId}/role
+        group.MapPut("/{id:guid}/members/{userId}/role", async (
+            Guid id,
+            string userId,
+            UpdateWorkspaceMemberRoleRequest request,
+            IMediator mediator,
+            ILogger<WorkspaceEndpoints> logger,
+            CancellationToken cancellationToken) =>
+        {
+            var command = new UpdateWorkspaceMemberRoleCommand(id, userId, request.Role);
+            var result = await mediator.Send(command, cancellationToken);
+            if (result == null || !result.Success)
+            {
+                // If the response indicates failure, return a NotFound with the message
+                logger.LogError("Failed to update member role in workspace: {Message}", result?.Message);   
+                return Results.NotFound($"User with ID '{userId}' not found in workspace.");
+            }
+            return Results.Ok(result);
+        })
+        .WithName("UpdateWorkspaceMemberRole")
+        .WithSummary("Update a workspace member's role")
+        .WithDescription("Updates the role of the specified workspace member.")
+        .Produces(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status404NotFound)
+        .Produces(StatusCodes.Status400BadRequest);
+
+        // GET /api/v1/workspaces/{workspaceId}/members
+        group.MapGet("/{id:guid}/members", async (
+            Guid id,
+            IMediator mediator,
+            ILogger<WorkspaceEndpoints> logger,
+            CancellationToken cancellationToken) =>
+        {
+            var query = new GetAllWorkspaceMembersQuery(id);
+            var members = await mediator.Send(query, cancellationToken);
+            return Results.Ok(members);
+        })
+        .WithName("ListWorkspaceMembers")
+        .WithSummary("List all members of a workspace")
+        .WithDescription("Retrieves all members of the specified workspace.")
+        .Produces<List<WorkspaceUser>>(StatusCodes.Status200OK);
+       
     }
 }

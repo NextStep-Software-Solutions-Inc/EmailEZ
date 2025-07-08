@@ -41,7 +41,7 @@ namespace EmailEZ.Client.Clients // Adjusted namespace
         /// </summary>
         /// <param name="request">The email send request payload.</param>
         /// <returns>A tuple indicating success and an optional error message.</returns>
-        public async Task<(bool Success, string ErrorMessage)> SendEmailAsync(SendEmailRequest request)
+        public async Task<(bool Success, string? ErrorMessage)> SendEmailAsync(SendEmailRequest request)
         {
             if (request == null)
             {
@@ -54,7 +54,8 @@ namespace EmailEZ.Client.Clients // Adjusted namespace
                 var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
                 // Construct the full URI relative to the base address
-                var requestUri = new Uri(_httpClient.BaseAddress, SendEmailEndpoint);
+                var baseUrl = _httpClient.BaseAddress ?? throw new InvalidOperationException("Base address is not set.");
+                var requestUri = new Uri(baseUrl, SendEmailEndpoint);
 
                 using (var response = await _httpClient.PostAsync(requestUri, content))
                 {

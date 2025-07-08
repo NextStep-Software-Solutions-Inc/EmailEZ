@@ -38,19 +38,9 @@ public interface IUnitOfWork : IDisposable
     IEmailConfigurationRepository EmailConfigurations { get; }
 
     /// <summary>
-    /// Gets the repository for WorkspaceUser entities.
-    /// </summary>
-    IGenericRepository<WorkspaceUser> WorkspaceUsers { get; }
-
-    /// <summary>
-    /// Gets the specific Email repository with custom operations.
-    /// </summary>
-    IEmailRepository EmailRepository { get; }
-
-    /// <summary>
     /// Gets the specific WorkspaceUser repository with custom operations.
     /// </summary>
-    IWorkspaceUserRepository WorkspaceUserRepository { get; }
+    IWorkspaceUserRepository WorkspaceUsers { get; }
 
     /// <summary>
     /// Saves all changes made in the unit of work to the database.

@@ -119,7 +119,7 @@ public class WorkspaceManagementService : IWorkspaceManagementService
         CancellationToken cancellationToken = default)
     {
         // ? Business Rule: Check if user is already in the workspace
-        var existingUser = await _unitOfWork.WorkspaceUserRepository
+        var existingUser = await _unitOfWork.WorkspaceUsers
             .GetByWorkspaceAndUserAsync(workspaceId, userId, cancellationToken);
 
         if (existingUser != null)
@@ -163,7 +163,7 @@ public class WorkspaceManagementService : IWorkspaceManagementService
         CancellationToken cancellationToken = default)
     {
         // ? Business Logic: Get existing user
-        var workspaceUser = await _unitOfWork.WorkspaceUserRepository
+        var workspaceUser = await _unitOfWork.WorkspaceUsers
             .GetByWorkspaceAndUserAsync(workspaceId, userId, cancellationToken);
 
         if (workspaceUser == null)

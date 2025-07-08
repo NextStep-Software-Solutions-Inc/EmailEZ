@@ -83,7 +83,7 @@ public class UnitOfWork : IUnitOfWork
         }
     }
 
-    public IGenericRepository<WorkspaceUser> WorkspaceUsers
+    public IWorkspaceUserRepository WorkspaceUsers
     {
         get
         {
@@ -95,6 +95,7 @@ public class UnitOfWork : IUnitOfWork
     // Specific repository accessors
     public IEmailRepository EmailRepository => (IEmailRepository)Emails;
     public IWorkspaceUserRepository WorkspaceUserRepository => (IWorkspaceUserRepository)WorkspaceUsers;
+
 
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
