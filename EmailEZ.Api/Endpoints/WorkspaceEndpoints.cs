@@ -250,8 +250,9 @@ public class WorkspaceEndpoints : CarterModule
         .WithName("AddWorkspaceMember")
         .WithSummary("Add a member to a workspace")
         .WithDescription("Adds a new member to the specified workspace with the given role.")
-        .Produces(StatusCodes.Status200OK)
-        .Produces(StatusCodes.Status400BadRequest);
+        .Produces<AddWorkspaceMemberResponse>(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status400BadRequest)
+        .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         // DELETE /api/v1/workspaces/{workspaceId}/members/{userId}
         group.MapDelete("/{id:guid}/members/{userId}", async (
@@ -268,7 +269,11 @@ public class WorkspaceEndpoints : CarterModule
                 // If the response indicates failure, return a NotFound with the message
                 logger.LogError("Failed to remove member from workspace: {Message}", result?.Message);
                 {
-                    return Results.NotFound($"User with ID '{userId}' not found in workspace.");
+                    return Results.NotFound(new RemoveWorkspaceMemberResponse
+                    {
+                        Success = false,
+                        Message = $"User with ID '{userId}' not found in workspace."
+                    });
                 }
             }
             return Results.Ok(result);
@@ -276,8 +281,9 @@ public class WorkspaceEndpoints : CarterModule
         .WithName("RemoveWorkspaceMember")
         .WithSummary("Remove a member from a workspace")
         .WithDescription("Removes the specified member from the workspace.")
-        .Produces(StatusCodes.Status200OK)
-        .Produces(StatusCodes.Status404NotFound);
+        .Produces<RemoveWorkspaceMemberResponse>(StatusCodes.Status200OK)
+        .Produces<RemoveWorkspaceMemberResponse>(StatusCodes.Status404NotFound)
+        .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         // PUT /api/v1/workspaces/{workspaceId}/members/{userId}/role
         group.MapPut("/{id:guid}/members/{userId}/role", async (
@@ -294,16 +300,21 @@ public class WorkspaceEndpoints : CarterModule
             {
                 // If the response indicates failure, return a NotFound with the message
                 logger.LogError("Failed to update member role in workspace: {Message}", result?.Message);
-                return Results.NotFound($"User with ID '{userId}' not found in workspace.");
+                return Results.NotFound(new UpdateWorkspaceMemberRoleResponse
+                {
+                    Success = false,
+                    Message = $"User with ID '{userId}' not found in workspace."
+                });
             }
             return Results.Ok(result);
         })
         .WithName("UpdateWorkspaceMemberRole")
         .WithSummary("Update a workspace member's role")
         .WithDescription("Updates the role of the specified workspace member.")
-        .Produces(StatusCodes.Status200OK)
-        .Produces(StatusCodes.Status404NotFound)
-        .Produces(StatusCodes.Status400BadRequest);
+        .Produces<UpdateWorkspaceMemberRoleResponse>(StatusCodes.Status200OK)
+        .Produces<UpdateWorkspaceMemberRoleResponse>(StatusCodes.Status404NotFound)
+        .Produces(StatusCodes.Status400BadRequest)
+        .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         // GET /api/v1/workspaces/{workspaceId}/members
         group.MapGet("/{id:guid}/members", async (
@@ -314,7 +325,6 @@ public class WorkspaceEndpoints : CarterModule
         {
             var query = new GetAllWorkspaceMembersQuery(id);
             var members = await mediator.Send(query, cancellationToken);
-            
             return Results.Ok(members);
         })
         .WithName("ListWorkspaceMembers")
