@@ -293,7 +293,7 @@ public class WorkspaceEndpoints : CarterModule
             if (result == null || !result.Success)
             {
                 // If the response indicates failure, return a NotFound with the message
-                logger.LogError("Failed to update member role in workspace: {Message}", result?.Message);   
+                logger.LogError("Failed to update member role in workspace: {Message}", result?.Message);
                 return Results.NotFound($"User with ID '{userId}' not found in workspace.");
             }
             return Results.Ok(result);
@@ -314,12 +314,16 @@ public class WorkspaceEndpoints : CarterModule
         {
             var query = new GetAllWorkspaceMembersQuery(id);
             var members = await mediator.Send(query, cancellationToken);
+            
             return Results.Ok(members);
         })
         .WithName("ListWorkspaceMembers")
         .WithSummary("List all members of a workspace")
         .WithDescription("Retrieves all members of the specified workspace.")
-        .Produces<List<WorkspaceUser>>(StatusCodes.Status200OK);
+        .Produces<List<GetAllWorkspaceMemberResponse>>(StatusCodes.Status200OK)
+        .ProducesProblem(StatusCodes.Status500InternalServerError)
+        .Produces(StatusCodes.Status404NotFound)
+        .Produces(StatusCodes.Status400BadRequest);
        
     }
 }
