@@ -3,7 +3,7 @@ using MediatR;
 namespace EmailEZ.Application.Features.WorkspaceUsers.Commands.RemoveWorkspaceMemberCommand;
 public record RemoveWorkspaceMemberCommand(
     Guid WorkspaceId,
-    string UserId
+    Guid MemberId
 ) : IRequest<RemoveWorkspaceMemberResponse>;
 
 public class RemoveWorkspaceMemberResponse

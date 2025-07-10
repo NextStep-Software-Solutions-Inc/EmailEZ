@@ -4,7 +4,7 @@ using EmailEZ.Domain.Enums;
 namespace EmailEZ.Application.Features.WorkspaceUsers.Commands.UpdateWorkspaceMemberRoleCommand;
 public record UpdateWorkspaceMemberRoleCommand(
     Guid WorkspaceId,
-    string UserId,
+    Guid MemberId,
     WorkspaceUserRole Role
 ) : IRequest<UpdateWorkspaceMemberRoleResponse>;
 

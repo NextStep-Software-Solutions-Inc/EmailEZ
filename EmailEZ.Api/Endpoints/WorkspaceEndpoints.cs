@@ -255,14 +255,14 @@ public class WorkspaceEndpoints : CarterModule
         .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         // DELETE /api/v1/workspaces/{workspaceId}/members/{userId}
-        group.MapDelete("/{id:guid}/members/{userId}", async (
+        group.MapDelete("/{id:guid}/members/{memberId:guid}", async (
             Guid id,
-            string userId,
+            Guid memberId,
             IMediator mediator,
             ILogger<WorkspaceEndpoints> logger,
             CancellationToken cancellationToken) =>
         {
-            var command = new RemoveWorkspaceMemberCommand(id, userId);
+            var command = new RemoveWorkspaceMemberCommand(id, memberId);
             var result = await mediator.Send(command, cancellationToken);
             if (result == null || !result.Success)
             {
@@ -272,7 +272,7 @@ public class WorkspaceEndpoints : CarterModule
                     return Results.NotFound(new RemoveWorkspaceMemberResponse
                     {
                         Success = false,
-                        Message = $"User with ID '{userId}' not found in workspace."
+                        Message = $"Member with ID '{memberId}' not found in workspace."
                     });
                 }
             }
@@ -285,16 +285,16 @@ public class WorkspaceEndpoints : CarterModule
         .Produces<RemoveWorkspaceMemberResponse>(StatusCodes.Status404NotFound)
         .ProducesProblem(StatusCodes.Status500InternalServerError);
 
-        // PUT /api/v1/workspaces/{workspaceId}/members/{userId}/role
-        group.MapPut("/{id:guid}/members/{userId}/role", async (
+        // PUT /api/v1/workspaces/{workspaceId}/members/{memberId}/role
+        group.MapPut("/{id:guid}/members/{memberId:guid}/role", async (
             Guid id,
-            string userId,
+            Guid memberId,
             UpdateWorkspaceMemberRoleRequest request,
             IMediator mediator,
             ILogger<WorkspaceEndpoints> logger,
             CancellationToken cancellationToken) =>
         {
-            var command = new UpdateWorkspaceMemberRoleCommand(id, userId, request.Role);
+            var command = new UpdateWorkspaceMemberRoleCommand(id, memberId, request.Role);
             var result = await mediator.Send(command, cancellationToken);
             if (result == null || !result.Success)
             {
@@ -303,7 +303,7 @@ public class WorkspaceEndpoints : CarterModule
                 return Results.NotFound(new UpdateWorkspaceMemberRoleResponse
                 {
                     Success = false,
-                    Message = $"User with ID '{userId}' not found in workspace."
+                    Message = $"Member with ID '{memberId}' not found in workspace."
                 });
             }
             return Results.Ok(result);

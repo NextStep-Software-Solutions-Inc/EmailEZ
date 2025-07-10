@@ -14,8 +14,7 @@ public class UpdateWorkspaceMemberRoleCommandHandler : IRequestHandler<UpdateWor
 
     public async Task<UpdateWorkspaceMemberRoleResponse> Handle(UpdateWorkspaceMemberRoleCommand request, CancellationToken cancellationToken)
     {
-        var member = await _unitOfWork.WorkspaceUsers
-            .FirstOrDefaultAsync(wu => wu.WorkspaceId == request.WorkspaceId && wu.UserId == request.UserId, cancellationToken);
+        var member = await _unitOfWork.WorkspaceUsers.FirstOrDefaultAsync(wu => wu.Id == request.MemberId, cancellationToken);
 
         if (member == null)
         {

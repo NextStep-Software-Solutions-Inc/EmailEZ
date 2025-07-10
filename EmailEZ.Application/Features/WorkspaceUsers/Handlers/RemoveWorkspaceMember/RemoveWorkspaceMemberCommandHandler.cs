@@ -14,8 +14,7 @@ public class RemoveWorkspaceMemberCommandHandler : IRequestHandler<RemoveWorkspa
 
     public async Task<RemoveWorkspaceMemberResponse> Handle(RemoveWorkspaceMemberCommand request, CancellationToken cancellationToken)
     {
-        var member = await _unitOfWork.WorkspaceUsers
-            .FirstOrDefaultAsync(wu => wu.WorkspaceId == request.WorkspaceId && wu.UserId == request.UserId, cancellationToken);
+        var member = await _unitOfWork.WorkspaceUsers.FirstOrDefaultAsync(wu => wu.Id == request.MemberId, cancellationToken);
 
         if (member == null)
         {
