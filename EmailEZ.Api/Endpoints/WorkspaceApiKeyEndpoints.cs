@@ -13,10 +13,11 @@ public class WorkspaceApiKeyEndpoints : CarterModule
     public override void AddRoutes(IEndpointRouteBuilder app)
     {
 
-        var group = app.MapGroup(WorkspaceApiKeyBaseRoute)
-                            .WithTags("Workspace API Keys")
-                            .WithOpenApi()
-                            .RequireAuthorization();
+        var group = app
+        .MapGroup(WorkspaceApiKeyBaseRoute)
+        .WithTags("Workspace API Keys")
+        .WithOpenApi()
+        .RequireAuthorization();
 
         // POST /api/v1/workspaces/{workspaceId}/users/{userId}/apikeys
         // This endpoint creates a new API key for the specified workspace user and returns the plain key
@@ -30,7 +31,12 @@ public class WorkspaceApiKeyEndpoints : CarterModule
             var result = await mediator.Send(command with { UserId = userId, WorkspaceId = workspaceId }, cancellationToken);
             if (result == null || !result.Success)
             {
-                return Results.BadRequest(new { Message = result?.Message ?? "Failed to create API key." });
+                return Results.BadRequest(new CreateWorkspaceApiKeyResponse(
+                    ApiKeyId: Guid.Empty,
+                    PlainKey: string.Empty,
+                    Success: false,
+                    Message: result?.Message ?? "Failed to create API key."
+                ));
             }
 
             return Results.Ok(new CreateWorkspaceApiKeyResponse(
@@ -56,7 +62,8 @@ public class WorkspaceApiKeyEndpoints : CarterModule
             IMediator mediator,
             CancellationToken cancellationToken) =>
         {
-            var result = await mediator.Send(new GetWorkspaceApiKeysQuery(workspaceId, userId), cancellationToken);
+            var query = new GetWorkspaceApiKeysQuery(workspaceId, userId);
+            var result = await mediator.Send(query, cancellationToken);
             return Results.Ok(result);
         })
         .WithName("GetWorkspaceApiKeys")
@@ -75,7 +82,8 @@ public class WorkspaceApiKeyEndpoints : CarterModule
             IMediator mediator,
             CancellationToken cancellationToken) =>
         {
-            var result = await mediator.Send(new RegenerateWorkspaceApiKeyCommand(workspaceId, userId, apiKeyId), cancellationToken);
+            var command = new RegenerateWorkspaceApiKeyCommand(workspaceId, userId, apiKeyId);
+            var result = await mediator.Send(command, cancellationToken);
             return result.Success ? Results.Ok(result) : Results.BadRequest(result);
         })
         .WithName("RegenerateWorkspaceApiKey")
@@ -83,7 +91,7 @@ public class WorkspaceApiKeyEndpoints : CarterModule
         .WithDescription("Regenerates the specified API key and returns the new plain key.")
         .Produces(StatusCodes.Status400BadRequest)
         .ProducesProblem(StatusCodes.Status500InternalServerError)
-        .Produces<string>(StatusCodes.Status200OK);
+        .Produces<RegenerateWorkspaceApiKeyResponse>(StatusCodes.Status200OK);
 
         // DELETE /api/v1/workspaces/{workspaceId}/users/{userId}/apikeys/{apiKeyId} 
         // This endpoint revokes (soft-deletes) the API key
@@ -94,7 +102,8 @@ public class WorkspaceApiKeyEndpoints : CarterModule
             IMediator mediator,
             CancellationToken cancellationToken) =>
         {
-            var result = await mediator.Send(new RevokeWorkspaceApiKeyCommand(workspaceId, userId, apiKeyId), cancellationToken);
+            var command = new RevokeWorkspaceApiKeyCommand(workspaceId, userId, apiKeyId);
+            var result = await mediator.Send(command, cancellationToken);
             return result.Success ? Results.Ok(result) : Results.NotFound(result);
         })
         .WithName("RevokeWorkspaceApiKey")

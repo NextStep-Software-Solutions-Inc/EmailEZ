@@ -54,7 +54,8 @@ public class CreateWorkspaceApiKeyCommandHandler : IRequestHandler<CreateWorkspa
         return new CreateWorkspaceApiKeyResponse(
             ApiKeyId: apiKey.Id,
             PlainKey: plainKey,
-            Success: true
+            Success: true,
+            Message: "API key created successfully."
         );
     }
 }
