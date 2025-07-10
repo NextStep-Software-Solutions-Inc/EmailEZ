@@ -40,7 +40,6 @@ public class CreateWorkspaceCommandHandler : IRequestHandler<CreateWorkspaceComm
                 WorkspaceId = result.Workspace.Id,
                 Name = result.Workspace.Name,
                 Domain = result.Workspace.Domain,
-                ApiKey = result.PlaintextApiKey,
                 IsSuccess = true,
                 Message = "Workspace created successfully."
             };

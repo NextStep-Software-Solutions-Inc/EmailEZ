@@ -20,7 +20,6 @@ public class CreateWorkspaceResponse
     public Guid WorkspaceId { get; set; }
     public string Name { get; set; } = string.Empty;
     public string Domain { get; set; } = string.Empty;
-    public string ApiKey { get; set; } = string.Empty; // The newly generated plaintext API key
     public bool IsSuccess { get; set; } = true;
     public string? Message { get; set; }
 }

@@ -16,7 +16,7 @@ namespace EmailEZ.Api.Endpoints;
 
 public class EmailEndpoints : CarterModule
 {
-    private const string EmailConfigsBaseRoute = "/api/v1/workspaces/{workspaceId:guid}/emails";
+    private const string EmailBaseRoute = "/api/v1/workspaces/{workspaceId:guid}/emails";
 
     public EmailEndpoints() : base() { }
 
@@ -24,7 +24,7 @@ public class EmailEndpoints : CarterModule
     {
         // Define the base group for email-related endpoints under a workspace
         // This makes it easier to apply common configurations like tags or authorization if needed
-        var group = app.MapGroup(EmailConfigsBaseRoute)
+        var group = app.MapGroup(EmailBaseRoute)
                             .WithTags("Emails")
                             .WithOpenApi()
                             .RequireAuthorization();

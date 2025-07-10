@@ -42,6 +42,8 @@ public interface IUnitOfWork : IDisposable
     /// </summary>
     IWorkspaceUserRepository WorkspaceUsers { get; }
 
+    IGenericRepository<WorkspaceApiKey> WorkspaceApiKeys { get; }
+
     /// <summary>
     /// Saves all changes made in the unit of work to the database.
     /// </summary>

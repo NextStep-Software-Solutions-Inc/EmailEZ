@@ -22,6 +22,7 @@ public class UnitOfWork : IUnitOfWork
     private IGenericRepository<AuditLog>? _auditLogs;
     private IEmailConfigurationRepository? _emailConfigurations;
     private IWorkspaceUserRepository? _workspaceUsers;
+    private IGenericRepository<WorkspaceApiKey>? _workspaceApiKeys;
 
     public UnitOfWork(IApplicationDbContext context)
     {
@@ -92,10 +93,18 @@ public class UnitOfWork : IUnitOfWork
         }
     }
 
+    public IGenericRepository<WorkspaceApiKey> WorkspaceApiKeys
+    {
+        get
+        {
+            _workspaceApiKeys ??= new GenericRepository<WorkspaceApiKey>(_context);
+            return _workspaceApiKeys;
+        }
+    }
     // Specific repository accessors
-    public IEmailRepository EmailRepository => (IEmailRepository)Emails;
-    public IWorkspaceUserRepository WorkspaceUserRepository => (IWorkspaceUserRepository)WorkspaceUsers;
-
+    public IEmailRepository EmailRepository => Emails;
+    public IWorkspaceUserRepository WorkspaceUserRepository => WorkspaceUsers;
+    public IGenericRepository<WorkspaceApiKey> WorkspaceApiKeysRepository => WorkspaceApiKeys;
 
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {

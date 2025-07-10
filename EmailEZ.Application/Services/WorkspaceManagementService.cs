@@ -11,13 +11,11 @@ namespace EmailEZ.Application.Services;
 public class WorkspaceManagementService : IWorkspaceManagementService
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IApiKeyHasher _apiKeyHasher;
     private readonly ICurrentUserService _currentUserService;
 
-    public WorkspaceManagementService(IUnitOfWork unitOfWork, IApiKeyHasher apiKeyHasher, ICurrentUserService currentUserService)
+    public WorkspaceManagementService(IUnitOfWork unitOfWork, ICurrentUserService currentUserService)
     {
         _unitOfWork = unitOfWork;
-        _apiKeyHasher = apiKeyHasher;
         _currentUserService = currentUserService;
     }
 
@@ -60,18 +58,12 @@ public class WorkspaceManagementService : IWorkspaceManagementService
                 throw new InvalidOperationException($"Workspace with domain '{domain}' already exists.");
             }
 
-            // ? Generate API Key (business logic)
-            var plaintextApiKey = Guid.NewGuid().ToString("N");
-            var hashedApiKey = _apiKeyHasher.HashApiKey(plaintextApiKey);
-
             // ? Create workspace entity (business logic)
             var workspace = new Workspace
             {
                 Name = workspaceName,
                 Domain = domain,
-                ApiKeyHash = hashedApiKey,
                 IsActive = true,
-                ApiKeyLastUsedAt = DateTimeOffset.UtcNow
             };
 
             var createdWorkspace = await _unitOfWork.Workspaces.AddAsync(workspace, cancellationToken);
@@ -93,7 +85,6 @@ public class WorkspaceManagementService : IWorkspaceManagementService
             return new WorkspaceCreationResult
             {
                 Workspace = createdWorkspace,
-                PlaintextApiKey = plaintextApiKey,
                 Owner = workspaceUser
             };
         }
@@ -297,6 +288,5 @@ public class WorkspaceManagementService : IWorkspaceManagementService
 public class WorkspaceCreationResult
 {
     public Workspace Workspace { get; set; } = null!;
-    public string PlaintextApiKey { get; set; } = string.Empty;
     public WorkspaceUser Owner { get; set; } = null!;
 }

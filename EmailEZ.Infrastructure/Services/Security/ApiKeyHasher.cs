@@ -14,6 +14,13 @@ public class ApiKeyHasher : IApiKeyHasher
     private const int SaltSize = 16;      // 16 bytes = 128 bits of salt
     private const int HashSize = 32;      // 32 bytes = 256 bits of hash output
 
+    public string ComputeFastHash(string apiKey)
+    {
+        using var sha256 = SHA256.Create();
+        var hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(apiKey));
+        return Convert.ToBase64String(hash);
+    }
+
     public string HashApiKey(string apiKey)
     {
         if (string.IsNullOrEmpty(apiKey))

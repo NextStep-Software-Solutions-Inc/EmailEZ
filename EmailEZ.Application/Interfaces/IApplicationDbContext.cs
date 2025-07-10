@@ -18,6 +18,7 @@ public interface IApplicationDbContext
     DbSet<WorkspaceUser> WorkspaceUsers { get; }
 
     DbSet<EmailConfiguration> EmailConfigurations { get; }
+    DbSet<WorkspaceApiKey> WorkspaceApiKeys { get; }
 
     /// <summary>
     /// Saves all changes made in this context to the underlying database.

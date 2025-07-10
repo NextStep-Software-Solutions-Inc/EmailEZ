@@ -24,8 +24,7 @@ public class RecentlyUsedWorkspacesSpecification : BaseSpecification<Workspace>
     public RecentlyUsedWorkspacesSpecification(TimeSpan withinPeriod)
     {
         var cutoffDate = DateTimeOffset.UtcNow.Subtract(withinPeriod);
-        AddCriteria(w => w.ApiKeyLastUsedAt >= cutoffDate && w.IsActive);
-        AddOrderByDescending(w => w.ApiKeyLastUsedAt);
+        AddCriteria(w => w.IsActive);
     }
 }
 
