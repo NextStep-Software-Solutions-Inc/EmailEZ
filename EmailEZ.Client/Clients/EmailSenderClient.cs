@@ -57,23 +57,21 @@ namespace EmailEZ.Client.Clients // Adjusted namespace
                 var baseUrl = _httpClient.BaseAddress ?? throw new InvalidOperationException("Base address is not set.");
                 var requestUri = new Uri(baseUrl, SendEmailEndpoint);
 
-                using (var response = await _httpClient.PostAsync(requestUri, content))
+                using var response = await _httpClient.PostAsync(requestUri, content);
+                if (response.IsSuccessStatusCode)
                 {
-                    if (response.IsSuccessStatusCode)
+                    return (true, null); // Email sent successfully
+                }
+                else
+                {
+                    string errorMessage = $"Failed to send email. Status Code: {response.StatusCode}";
+                    var responseContent = await response.Content.ReadAsStringAsync();
+                    if (!string.IsNullOrEmpty(responseContent))
                     {
-                        return (true, null); // Email sent successfully
+                        errorMessage += $", Details: {responseContent}";
                     }
-                    else
-                    {
-                        string errorMessage = $"Failed to send email. Status Code: {response.StatusCode}";
-                        var responseContent = await response.Content.ReadAsStringAsync();
-                        if (!string.IsNullOrEmpty(responseContent))
-                        {
-                            errorMessage += $", Details: {responseContent}";
-                        }
-                        Console.Error.WriteLine(errorMessage); // Log the error (consider a proper logging framework)
-                        return (false, errorMessage);
-                    }
+                    Console.Error.WriteLine(errorMessage); // Log the error (consider a proper logging framework)
+                    return (false, errorMessage);
                 }
             }
             catch (HttpRequestException httpEx)
