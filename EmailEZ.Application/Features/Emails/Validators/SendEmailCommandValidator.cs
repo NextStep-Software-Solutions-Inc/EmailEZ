@@ -20,10 +20,10 @@ public class SendEmailCommandValidator : AbstractValidator<SendEmailCommand>
 
         RuleFor(x => x.Subject)
             .NotEmpty().WithMessage("Subject is required.")
-            .MaximumLength(255).WithMessage("Subject must not exceed 255 characters.");
+            .MaximumLength(1000).WithMessage("Subject must not exceed 1000 characters.");
         RuleFor(x => x.Body)
             .NotEmpty().WithMessage("Email body is required.")
-            .MaximumLength(5000).WithMessage("Email body must not exceed 5000 characters.");
+            .MaximumLength(100000).WithMessage("Email body must not exceed 100000 characters.");
         RuleFor(x => x.FromDisplayName)
             .MaximumLength(255).WithMessage("From display name must not exceed 255 characters.");
         RuleFor(x => x.EmailConfigurationId)
